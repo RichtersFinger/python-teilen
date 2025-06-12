@@ -63,7 +63,7 @@ def load_callback_url_options() -> list[dict]:
         ) as response:
             options.append(
                 {
-                    "address": "http://" + response.read(),
+                    "address": "http://" + response.read().decode("utf-8"),
                     "name": "global",
                 }
             )
@@ -72,6 +72,33 @@ def load_callback_url_options() -> list[dict]:
         pass
 
     return options
+
+
+def print_welcome_message(config: AppConfig) -> None:
+    """Prints welcome message to stdout."""
+    url_options = load_callback_url_options()
+    lines = (
+        [
+            "Your teilen-instance will be available shortly.",
+        ]
+        + (["Running in dev-mode."] if config.MODE == "dev" else [])
+        + (
+            ["The following addresses have been detected automatically:"]
+            if url_options
+            else []
+        )
+        + list(
+            map(
+                lambda o: f" * {o['name']}: {o['address']}:{config.PORT}",
+                url_options,
+            )
+        )
+    )
+    delimiter = "#" * (max(map(len, lines)) + 4)
+    print(delimiter)
+    for line in lines:
+        print(f"# {line}{' '*(len(delimiter) - len(line) - 4)} #")
+    print(delimiter)
 
 
 def app_factory(config: AppConfig) -> Flask:
@@ -84,6 +111,9 @@ def app_factory(config: AppConfig) -> Flask:
     # extensions
     if config.MODE == "dev":
         load_cors(_app, config.DEV_CORS_FRONTEND_URL)
+
+    # print welcome message
+    print_welcome_message(config)
 
     @_app.route("/ping", methods=["GET"])
     def ping():
