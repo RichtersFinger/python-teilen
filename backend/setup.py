@@ -30,7 +30,7 @@ setup(
     packages=[
         "teilen",
     ],
-    package_data={"teilen": ["client/**/*", "wsgi.py"]},
+    package_data={"teilen": ["client/**/*"]},
     entry_points={
         "console_scripts": [
             "teilen = teilen.app:run",

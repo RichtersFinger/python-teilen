@@ -1,6 +1,7 @@
 """teilen-backend definition."""
 
 import sys
+from pathlib import Path
 import socket
 import urllib.request
 from importlib.metadata import version
@@ -78,12 +79,25 @@ def print_welcome_message(config: AppConfig) -> None:
     """Prints welcome message to stdout."""
     url_options = load_callback_url_options()
     lines = (
-        [
+        (
+            ["Running in dev-mode."]
+            if config.MODE == "dev"
+            else []
+        )
+        + [
             "Your teilen-instance will be available shortly.",
+            "",
+            "The contents of the following directory will be available:",
+            (
+                str(config.WORKING_DIR)[:30]
+                + "..."
+                + str(config.WORKING_DIR)[-30:]
+                if len(str(config.WORKING_DIR)) > 70
+                else str(config.WORKING_DIR)
+            ),
         ]
-        + (["Running in dev-mode."] if config.MODE == "dev" else [])
         + (
-            ["The following addresses have been detected automatically:"]
+            ["", "The following addresses have been detected automatically:"]
             if url_options
             else []
         )
@@ -103,6 +117,14 @@ def print_welcome_message(config: AppConfig) -> None:
 
 def app_factory(config: AppConfig) -> Flask:
     """Returns teilen-Flask app."""
+    if not config.WORKING_DIR.is_dir():
+        print(
+            "\033[1;31mERROR\033[0m: "
+            + f"Requested directory '{config.WORKING_DIR}' does not exist.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     # define Flask-app
     _app = Flask(__name__, static_folder=config.STATIC_PATH)
 
@@ -142,11 +164,18 @@ def app_factory(config: AppConfig) -> Flask:
 
 def run(app=None, config=None):
     """Run flask-app."""
-    # load defaults
-    if not app:
-        from .wsgi import app
+    # load default config
     if not config:
-        from .wsgi import config
+        config = AppConfig()
+
+    # parse command line arguments
+    # * first arg is used as path to be shared
+    if len(sys.argv) > 1:
+        config.WORKING_DIR = Path(sys.argv[1]).resolve()
+
+    # load default app
+    if not app:
+        app = app_factory(config)
 
     # not intended for production due to, e.g., cors
     if config.MODE != "prod":
