@@ -24,7 +24,7 @@ interface ButtonProps {
 }
 
 export default function Button({
-  className,
+  className = "",
   type: kind = "default",
   size = "base",
   disabled = false,

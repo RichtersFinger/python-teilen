@@ -6,7 +6,7 @@ interface TextInputProps {
 }
 
 export default function TextInput({
-  className,
+  className = "",
   value,
   placeholder,
   onChange,
