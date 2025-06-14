@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { FiChevronRight } from "react-icons/fi";
 
-import { FileProperties, FolderProperties } from "./types";
+import { ContentItem, FileProperties, FolderProperties } from "./types";
 import FSItem from "./components/FSItem";
 
 export const baseUrl = process.env.REACT_APP_API_BASE_URL ?? "";
 
 export default function App() {
-  const [location, setLocation] = useState<string[]>(["venv", "lib", "python3.12", "site-packages"]);
-  const [content, setContent] = useState<(FileProperties | FolderProperties)[]>(
-    []
-  );
+  const [location, setLocation] = useState<string[]>([
+    "venv",
+    "lib",
+    "python3.12",
+    "site-packages",
+  ]);
+  const [content, setContent] = useState<ContentItem[]>([]);
+  const [selection, setSelection] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     fetch(
@@ -22,7 +26,15 @@ export default function App() {
     )
       .then((response) => {
         if (response.ok) {
-          return response.json().then((json) => setContent(json));
+          return response.json().then((json) =>
+            setContent(
+              (json as (FileProperties | FolderProperties)[]).map(
+                (item, index) => {
+                  return { ...item, index };
+                }
+              )
+            )
+          );
         }
       })
       .catch((error) => console.error(error));
@@ -54,8 +66,15 @@ export default function App() {
             {content
               .sort((a, b) => (a.name < b.name ? -1 : 1))
               .sort((a, b) => (a.type > b.type ? -1 : 1))
-              .map((item, index) => (
-                <FSItem key={index} item={item} />
+              .map((item) => (
+                <FSItem
+                  key={item.index}
+                  item={item}
+                  selected={selection === item.index}
+                  onClick={() => {
+                    setSelection(item.index);
+                  }}
+                />
               ))}
           </div>
         </div>

@@ -3,14 +3,16 @@ import { FileProperties, FolderProperties } from "../types";
 interface FSItemProps {
   item: FileProperties | FolderProperties;
   selected?: boolean;
+  onClick?: (event: React.MouseEvent) => void;
 }
 
-export default function FSItem({ item, selected }: FSItemProps) {
+export default function FSItem({ item, selected, onClick }: FSItemProps) {
   return (
     <div
-      className={`flex flex-col items-center mx-2 my-1 py-2 hover:bg-gray-100 select-none ${
-        selected && "border-4 border-blue-300"
+      className={`flex flex-col items-center mx-2 my-1 py-2 hover:bg-gray-100 select-none border-4 ${
+        selected ? " border-blue-300" : "border-transparent"
       }`}
+      onClick={onClick}
     >
       {item.type === "file" ? (
         <img src="/file2.svg" alt="file" />

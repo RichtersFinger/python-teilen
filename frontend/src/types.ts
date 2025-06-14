@@ -7,3 +7,7 @@ export interface FolderProperties {
   type: "folder";
   name: string;
 }
+
+export type ContentItem = (FileProperties | FolderProperties) & {
+  index: number;
+};
