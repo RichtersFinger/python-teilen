@@ -3,6 +3,7 @@ import { FiHome, FiChevronRight } from "react-icons/fi";
 
 import { ContentItem, FileProperties, FolderProperties } from "./types";
 import FSItem from "./components/FSItem";
+import Logo from "./components/Logo";
 
 export const baseUrl = process.env.REACT_APP_API_BASE_URL ?? "";
 
@@ -46,10 +47,7 @@ export default function App() {
     >
       <div className="fixed top-0 left-0 w-full h-12 bg-white border border-gray-300 shadow-sm">
         <div className="flex flex-row h-full gap-x-5">
-          <div className="flex p-2 space-x-2 items-center">
-            <img src="/favicon2.svg" width={50} alt="logo" />
-            <span className="font-bold text-xl">teilen</span>
-          </div>
+          <Logo />
           <div className="flex flex-row space-x-2 items-center">
             <div
               className="p-2 hover:cursor-pointer"
