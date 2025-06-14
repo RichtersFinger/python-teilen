@@ -152,10 +152,10 @@ def app_factory(config: AppConfig) -> Flask:
         """
         return Response(version("teilen"), mimetype="text/plain", status=200)
 
-    @_app.route("/content", methods=["GET"])
-    def get_content():
+    @_app.route("/contents", methods=["GET"])
+    def get_contents():
         """
-        Returns content for given location.
+        Returns contents for given location.
         """
         # parse args
         if request.args.get("location") is None:

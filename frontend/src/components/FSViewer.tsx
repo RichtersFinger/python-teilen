@@ -33,7 +33,7 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
     setLoadingContent(true);
     fetch(
       (process.env.REACT_APP_API_BASE_URL ?? "") +
-        "/content?" +
+        "/contents?" +
         new URLSearchParams({
           location: encodeURIComponent(location.join("/")),
         }).toString()
