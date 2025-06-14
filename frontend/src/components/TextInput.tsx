@@ -12,7 +12,7 @@ export default function TextInput({
   onChange,
 }: TextInputProps) {
   return (
-    <div className="relative">
+    <div>
       <input
         className={`p-2 border border-gray-300 rounded-lg outline-none focus:shadow-md ${className}`}
         type="text"
