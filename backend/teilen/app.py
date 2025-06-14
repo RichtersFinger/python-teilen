@@ -1,5 +1,6 @@
 """teilen-backend definition."""
 
+from typing import Optional
 import sys
 from pathlib import Path
 import socket
@@ -152,16 +153,20 @@ def app_factory(config: AppConfig) -> Flask:
         """
         return Response(version("teilen"), mimetype="text/plain", status=200)
 
+    def get_location(provide_default: bool = True) -> Optional[Path]:
+        """Parse and return location-arg."""
+        if request.args.get("location") is None:
+            if provide_default:
+                return config.WORKING_DIR
+            return None
+        return Path(unquote(request.args["location"]))
+
     @_app.route("/contents", methods=["GET"])
     def get_contents():
         """
         Returns contents for given location.
         """
-        # parse args
-        if request.args.get("location") is None:
-            _location = config.WORKING_DIR
-        else:
-            _location = Path(unquote(request.args["location"]))
+        _location = get_location()
 
         # check for problems
         if _location.is_absolute():
@@ -207,6 +212,42 @@ def app_factory(config: AppConfig) -> Flask:
             ),
             200,
         )
+
+    @_app.route("/content", methods=["GET"])
+    def get_content():
+        """
+        Returns file/folder (as archive) for given location.
+        """
+        _location = get_location(False)
+        if _location is None:
+            return Response(
+                "Missing 'location' arg.", mimetype="text/plain", status=400
+            )
+
+        # check for problems
+        if _location.is_absolute():
+            return Response(
+                "Only relative paths are supported.",
+                mimetype="text/plain",
+                status=403,
+            )
+        try:
+            if (
+                not _location.resolve()
+                .relative_to(config.WORKING_DIR)
+                .exists()
+            ):
+                return Response(
+                    "Does not exist.", mimetype="text/plain", status=404
+                )
+        except ValueError:
+            return Response("Not allowed.", mimetype="text/plain", status=403)
+
+        if _location.is_file():
+            return send_from_directory(
+                config.WORKING_DIR, _location, as_attachment=True
+            )
+        return Response("Not implemented.", mimetype="text/plain", status=501)
 
     @_app.route("/", defaults={"path": ""})
     @_app.route("/<path:path>")
