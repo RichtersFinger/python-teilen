@@ -1,28 +1,13 @@
 import { useEffect, useState } from "react";
 import { FiChevronRight } from "react-icons/fi";
 
-interface FileProperties {
-  type: "file";
-  name: string;
-}
-
-interface FolderProperties {
-  type: "folder";
-  name: string;
-}
-
-const data = [
-  { type: "folder", name: "folder 1" },
-  { type: "folder", name: "folder 2" },
-  { type: "file", name: "file 1.txt" },
-  { type: "file", name: "file 2.txt" },
-  { type: "file", name: "file 3.txt" },
-];
+import { FileProperties, FolderProperties } from "./types";
+import FSItem from "./components/FSItem";
 
 export const baseUrl = process.env.REACT_APP_API_BASE_URL ?? "";
 
 export default function App() {
-  const [location, setLocation] = useState<string[]>([]);
+  const [location, setLocation] = useState<string[]>(["venv", "lib", "python3.12", "site-packages"]);
   const [content, setContent] = useState<(FileProperties | FolderProperties)[]>(
     []
   );
@@ -70,17 +55,7 @@ export default function App() {
               .sort((a, b) => (a.name < b.name ? -1 : 1))
               .sort((a, b) => (a.type > b.type ? -1 : 1))
               .map((item, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center mx-5 my-1 py-2 hover:bg-gray-100"
-                >
-                  {item.type === "file" ? (
-                    <img src="/file2.svg" alt="file" />
-                  ) : (
-                    <img src="/folder2.svg" alt="folder" />
-                  )}
-                  <span>{item.name}</span>
-                </div>
+                <FSItem key={index} item={item} />
               ))}
           </div>
         </div>
