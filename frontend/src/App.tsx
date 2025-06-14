@@ -20,6 +20,8 @@ const data = [
   { type: "file", name: "file 3.txt" },
 ];
 
+export const baseUrl = process.env.REACT_APP_API_BASE_URL ?? "";
+
 export default function App() {
   return (
     <div className="flex top-0 left-0 h-screen w-screen bg-gray-50">
