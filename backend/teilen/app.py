@@ -171,7 +171,11 @@ def app_factory(config: AppConfig) -> Flask:
                 status=403,
             )
         try:
-            if not _location.resolve().relative_to(config.WORKING_DIR).is_dir():
+            if (
+                not _location.resolve()
+                .relative_to(config.WORKING_DIR)
+                .is_dir()
+            ):
                 return Response(
                     "Does not exist.", mimetype="text/plain", status=404
                 )
@@ -183,8 +187,23 @@ def app_factory(config: AppConfig) -> Flask:
         files = filter(lambda p: p.is_file(), contents)
         return (
             jsonify(
-                [{"type": "folder", "name": f.name} for f in folders]
-                + [{"type": "file", "name": f.name} for f in files]
+                [
+                    {
+                        "type": "folder",
+                        "name": f.name,
+                        "mtime": f.stat().st_mtime,
+                    }
+                    for f in folders
+                ]
+                + [
+                    {
+                        "type": "file",
+                        "name": f.name,
+                        "mtime": f.stat().st_mtime,
+                        "size": f.stat().st_size,
+                    }
+                    for f in files
+                ]
             ),
             200,
         )
