@@ -4,11 +4,14 @@ import sys
 from pathlib import Path
 import socket
 import urllib.request
+from urllib.parse import unquote
 from importlib.metadata import version
 
 from flask import (
     Flask,
+    request,
     Response,
+    jsonify,
     send_from_directory,
 )
 
@@ -79,11 +82,7 @@ def print_welcome_message(config: AppConfig) -> None:
     """Prints welcome message to stdout."""
     url_options = load_callback_url_options()
     lines = (
-        (
-            ["Running in dev-mode."]
-            if config.MODE == "dev"
-            else []
-        )
+        (["Running in dev-mode."] if config.MODE == "dev" else [])
         + [
             "Your teilen-instance will be available shortly.",
             "",
@@ -124,6 +123,8 @@ def app_factory(config: AppConfig) -> Flask:
             file=sys.stderr,
         )
         sys.exit(1)
+    if not config.WORKING_DIR.is_absolute():
+        config.WORKING_DIR = config.WORKING_DIR.resolve()
 
     # define Flask-app
     _app = Flask(__name__, static_folder=config.STATIC_PATH)
@@ -150,6 +151,43 @@ def app_factory(config: AppConfig) -> Flask:
         Returns app version.
         """
         return Response(version("teilen"), mimetype="text/plain", status=200)
+
+    @_app.route("/content", methods=["GET"])
+    def get_content():
+        """
+        Returns content for given location.
+        """
+        # parse args
+        if request.args.get("location") is None:
+            _location = config.WORKING_DIR
+        else:
+            _location = Path(unquote(request.args["location"]))
+
+        # check for problems
+        if _location.is_absolute():
+            return Response(
+                "Only relative paths are supported.",
+                mimetype="text/plain",
+                status=403,
+            )
+        try:
+            if not _location.resolve().relative_to(config.WORKING_DIR).is_dir():
+                return Response(
+                    "Does not exist.", mimetype="text/plain", status=404
+                )
+        except ValueError:
+            return Response("Not allowed.", mimetype="text/plain", status=403)
+
+        contents = list(_location.glob("*"))
+        folders = filter(lambda p: p.is_dir(), contents)
+        files = filter(lambda p: p.is_file(), contents)
+        return (
+            jsonify(
+                [{"type": "folder", "name": f.name} for f in folders]
+                + [{"type": "file", "name": f.name} for f in files]
+            ),
+            200,
+        )
 
     @_app.route("/", defaults={"path": ""})
     @_app.route("/<path:path>")
