@@ -6,6 +6,7 @@ import Modal from "./base/Modal";
 import Button from "./base/Button";
 import Logo from "./Logo";
 import Badge from "./base/Badge";
+import Spinner from "./base/Spinner";
 
 interface InfoModalProps {
   show: boolean;
@@ -14,13 +15,19 @@ interface InfoModalProps {
 
 export default function InfoModal({ show, onDismiss }: InfoModalProps) {
   const [version, setVersion] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     fetch((process.env.REACT_APP_API_BASE_URL ?? "") + "/version")
       .then((response) => {
+        setLoading(false);
         if (response.ok) response.text().then((text) => setVersion(text));
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        setLoading(false);
+        console.error(error);
+      });
   }, []);
 
   return show ? (
@@ -30,27 +37,27 @@ export default function InfoModal({ show, onDismiss }: InfoModalProps) {
       body={
         <div className="flex flex-col space-y-2">
           <Logo />
-          <div>
+          <div className="flex flex-row space-x-2">
             <span>Software version: </span>
-            <span className="font-mono">{version}</span>
+            {loading ? <Spinner size="xs" /> : <span>{version}</span>}
           </div>
           <div className="flex flex-row space-x-2">
-            <a
-              href="https://pypi.org/project/teilen"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Badge>
-                <AiOutlinePython size={20} /> <span>View on PyPi</span>
-              </Badge>
-            </a>
             <a
               href="https://github.com/RichtersFinger/python-teilen"
               target="_blank"
               rel="noreferrer"
             >
-              <Badge>
+              <Badge className="px-4">
                 <FiGithub size={20} /> <span>View on GitHub</span>
+              </Badge>
+            </a>
+            <a
+              href="https://pypi.org/project/teilen"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Badge className="px-4">
+                <AiOutlinePython size={20} /> <span>View on PyPi</span>
               </Badge>
             </a>
           </div>
