@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FiChevronRight } from "react-icons/fi";
+import { FiHome, FiChevronRight } from "react-icons/fi";
 
 import { ContentItem, FileProperties, FolderProperties } from "./types";
 import FSItem from "./components/FSItem";
@@ -7,12 +7,7 @@ import FSItem from "./components/FSItem";
 export const baseUrl = process.env.REACT_APP_API_BASE_URL ?? "";
 
 export default function App() {
-  const [location, setLocation] = useState<string[]>([
-    "venv",
-    "lib",
-    "python3.12",
-    "site-packages",
-  ]);
+  const [location, setLocation] = useState<string[]>([]);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [selection, setSelection] = useState<number | undefined>(undefined);
 
@@ -40,8 +35,15 @@ export default function App() {
       .catch((error) => console.error(error));
   }, [location]);
 
+  useEffect(() => {
+    setSelection(undefined);
+  }, [location]);
+
   return (
-    <div className="flex top-0 left-0 h-screen w-screen bg-gray-50">
+    <div
+      className="flex top-0 left-0 h-screen w-screen bg-gray-50"
+      onClick={() => setSelection(undefined)}
+    >
       <div className="fixed top-0 left-0 w-full h-12 bg-white border border-gray-300 shadow-sm">
         <div className="flex flex-row h-full gap-x-5">
           <div className="flex p-2 space-x-2 items-center">
@@ -49,10 +51,21 @@ export default function App() {
             <span className="font-bold text-xl">teilen</span>
           </div>
           <div className="flex flex-row space-x-2 items-center">
+            <div
+              className="p-2 hover:cursor-pointer"
+              onClick={() => setLocation([])}
+            >
+              <FiHome />
+            </div>
             {location.map((item, index) => (
               <div key={index} className="flex items-center space-x-2">
-                {index !== 0 && <FiChevronRight />}
-                <span className="p-2 font-semibold hover:cursor-pointer">
+                <FiChevronRight />
+                <span
+                  className="p-2 font-semibold hover:cursor-pointer"
+                  onClick={() =>
+                    setLocation((prev) => prev.slice(0, index + 1))
+                  }
+                >
                   {item}
                 </span>
               </div>
@@ -71,8 +84,13 @@ export default function App() {
                   key={item.index}
                   item={item}
                   selected={selection === item.index}
-                  onClick={() => {
+                  onClick={(e) => {
                     setSelection(item.index);
+                    e.stopPropagation();
+                  }}
+                  onDoubleClick={() => {
+                    if (item.type === "file") return;
+                    setLocation((prev) => [...prev, item.name]);
                   }}
                 />
               ))}
