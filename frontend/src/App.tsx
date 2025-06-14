@@ -4,17 +4,17 @@ import { FiHome, FiChevronRight } from "react-icons/fi";
 import { ContentItem, FileProperties, FolderProperties } from "./types";
 import FSItem from "./components/FSItem";
 import Logo from "./components/Logo";
-
-export const baseUrl = process.env.REACT_APP_API_BASE_URL ?? "";
+import InfoModal from "./components/InfoModal";
 
 export default function App() {
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const [location, setLocation] = useState<string[]>([]);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [selection, setSelection] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     fetch(
-      baseUrl +
+      (process.env.REACT_APP_API_BASE_URL ?? "") +
         "/content?" +
         new URLSearchParams({
           location: encodeURIComponent(location.join("/")),
@@ -47,7 +47,8 @@ export default function App() {
     >
       <div className="fixed top-0 left-0 w-full h-12 bg-white border border-gray-300 shadow-sm">
         <div className="flex flex-row h-full gap-x-5">
-          <Logo />
+          <Logo className="hover:cursor-pointer" onClick={() => setShowInfoModal(true)}/>
+          <InfoModal show={showInfoModal} onDismiss={() => setShowInfoModal(false)}/>
           <div className="flex flex-row space-x-2 items-center">
             <div
               className="p-2 hover:cursor-pointer"
