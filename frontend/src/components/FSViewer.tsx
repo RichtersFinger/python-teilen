@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ContentItem, FileProperties, FolderProperties } from "../types";
-import FSItem from "./FSItem";
 import Spinner from "./base/Spinner";
+import Button from "./base/Button";
+import FSItem from "./FSItem";
 
 function toHumanReadableSize(size: number): string {
   const units = ["B", "kB", "MB", "GB", "TB"];
@@ -17,6 +18,24 @@ function toHumanReadableSize(size: number): string {
   return `${(size / 1024 ** unit).toFixed(unit <= 1 ? 0 : 1)} ${units[unit]}`;
 }
 
+function fetchFile(location: string[], onBlob: (blob: Blob) => void) {
+  fetch(
+    (process.env.REACT_APP_API_BASE_URL ?? "") +
+      "/content?" +
+      new URLSearchParams({
+        location: encodeURIComponent(location.join("/")),
+      }).toString()
+  )
+    .then((response) => {
+      if (response.ok) {
+        response.blob().then((blob) => onBlob(blob));
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
 interface FSViewerProps {
   location: string[];
   setLocation: React.Dispatch<React.SetStateAction<string[]>>;
@@ -24,6 +43,7 @@ interface FSViewerProps {
 
 export default function FSViewer({ location, setLocation }: FSViewerProps) {
   const [selection, setSelection] = useState<number | undefined>(undefined);
+  const downloadRef = useRef<HTMLAnchorElement>(null);
 
   const [loadingContent, setLoadingContent] = useState(false);
   const [content, setContent] = useState<Record<number, ContentItem>>({});
@@ -95,8 +115,14 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                     e.stopPropagation();
                   }}
                   onDoubleClick={() => {
-                    if (item.type === "file") return;
-                    setLocation((prev) => [...prev, item.name]);
+                    if (item.type === "file") {
+                      // open in new tab to try and show content in browser
+                      fetchFile([...location, item.name], (blob) =>
+                        window.open(window.URL.createObjectURL(blob))
+                      );
+                    } else {
+                      setLocation((prev) => [...prev, item.name]);
+                    }
                   }}
                 />
               ))}
@@ -104,7 +130,7 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
         )}
       </div>
       {/* file-info */}
-      {selection !== undefined && content[selection].type === "file" && (
+      {selection !== undefined && (
         <div
           className="absolute p-3 right-4 bottom-4 border rounded-md bg-gray-100 shadow-lg"
           onClick={(e) => e.stopPropagation()}
@@ -124,13 +150,44 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                 ).toUTCString()}
               </span>
             </div>
+            {content[selection].type === "file" && (
+              <div className="flex flex-row space-x-2">
+                <span className="font-semibold text-nowrap">Size:</span>
+                <span>
+                  {toHumanReadableSize(
+                    (content[selection] as FileProperties).size
+                  )}
+                </span>
+              </div>
+            )}
             <div className="flex flex-row space-x-2">
-              <span className="font-semibold text-nowrap">Size:</span>
-              <span>
-                {toHumanReadableSize(
-                  (content[selection] as FileProperties).size
-                )}
-              </span>
+              {content[selection].type === "file" && (
+                <Button
+                  onClick={() =>
+                    fetchFile([...location, content[selection].name], (blob) =>
+                      window.open(window.URL.createObjectURL(blob))
+                    )
+                  }
+                >
+                  View in Browser
+                </Button>
+              )}
+              <Button
+                onClick={() => {
+                  fetchFile([...location, content[selection].name], (blob) => {
+                    // open "save as"-dialog
+                    downloadRef.current!.href =
+                      window.URL.createObjectURL(blob);
+                    downloadRef.current!.download = content[selection].name;
+                    downloadRef.current!.click();
+                  });
+                }}
+              >
+                Download
+              </Button>
+              <a ref={downloadRef} className="hidden" href="data:">
+                placeholder
+              </a>
             </div>
           </div>
         </div>
