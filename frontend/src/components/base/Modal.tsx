@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 interface ModalProps {
   className?: string;
   header?: React.ReactNode;
@@ -13,9 +15,9 @@ export default function Modal({
   footer,
   onDismiss,
 }: ModalProps) {
-  return (
+  return createPortal(
     <div
-      className="fixed z-50 bg-opacity-50 bg-black top-0 left-0 h-screen w-screen flex items-center justify-center"
+      className="fixed bg-opacity-50 bg-black top-0 left-0 h-screen w-screen flex items-center justify-center"
       onClick={onDismiss}
     >
       <div
@@ -27,6 +29,7 @@ export default function Modal({
         <div>{body}</div>
         <div>{footer}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
