@@ -1,10 +1,21 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import { FiChevronLeft, FiChevronUp, FiSearch } from "react-icons/fi";
 
 import { ContentItem, FileProperties, FolderProperties } from "../types";
 import { AuthContext } from "../App";
 import Spinner from "./base/Spinner";
 import Button from "./base/Button";
 import FSItem from "./FSItem";
+import TextInput from "./base/TextInput";
+import Select from "./base/Select";
+
+type SortBy =
+  | "name-ascending"
+  | "name-descending"
+  | "date-ascending"
+  | "date-descending"
+  | "size-ascending"
+  | "size-descending";
 
 /**
  * Returns size in human readable unit.
@@ -71,6 +82,10 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
   const [loadingContent, setLoadingContent] = useState(false);
   const [content, setContent] = useState<Record<number, ContentItem>>({});
 
+  const [history, setHistory] = useState<string[][]>([]);
+  const [searchFor, setSearchFor] = useState("");
+  const [sortBy, setSortBy] = useState<SortBy>("name-ascending");
+
   // fetch data from API when location changes
   useEffect(() => {
     setLoadingContent(true);
@@ -111,125 +126,232 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
       });
   }, [location]);
 
+  // track changed location in history
+  useEffect(() => {
+    setHistory((prev) => {
+      if (
+        prev.length > 0 &&
+        JSON.stringify(location) === JSON.stringify(prev[prev.length - 1])
+      )
+        return prev;
+      return [...prev, location];
+    });
+  }, [location]);
+
   // unselect if location changes
   useEffect(() => {
     setSelection(undefined);
   }, [location]);
 
   return (
-    <div
-      className="relative w-screen m-2 mt-16 bg-white rounded-lg border border-gray-300 overflow-hidden"
-      onClick={() => setSelection(undefined)}
-    >
-      {/* viewer body */}
-      <div className="flex flex-col h-full py-2 px-3 overflow-y-auto hide-scrollbar hover:show-scrollbar">
-        {loadingContent ? (
-          <div className="h-full w-full justify-items-center mt-5 ">
-            <Spinner size="lg" />
-          </div>
-        ) : (
-          <div className="grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-x-0">
-            {Object.values(content)
-              .sort((a, b) => {
-                if (a.type === b.type)
-                  return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
-                return a.type > b.type ? -1 : 1;
-              })
-              .map((item) => (
-                <FSItem
-                  key={item.index}
-                  item={item}
-                  selected={selection === item.index}
-                  onClick={(e) => {
-                    setSelection(item.index);
-                    e.stopPropagation();
-                  }}
-                  onDoubleClick={() => {
-                    if (item.type === "file") {
-                      // open in new tab to try and show content in browser
+    <div className="flex flex-col w-screen m-2 mt-16 space-y-2">
+      {/* toolbar
+       * - back-navigation
+       * - filter by name
+       * - sort-by: name, file-size (sort dir by name), date
+       */}
+      <div className="flex justify-between space-x-2">
+        <div className="flex flex-row space-x-2">
+          <Button
+            disabled={history.length <= 1}
+            onClick={() => {
+              if (history.length <= 1) return;
+              setLocation(history[history.length - 2]);
+              setHistory(history.slice(0, history.length - 2));
+            }}
+          >
+            <div className="flex flex-row space-x-2 items-center">
+              <FiChevronLeft /> <span>Back</span>
+            </div>
+          </Button>
+          <Button
+            disabled={location.length === 0}
+            onClick={() => {
+              setLocation(location.slice(0, location.length - 1));
+            }}
+          >
+            <div className="flex flex-row space-x-2 items-center">
+              <FiChevronUp /> <span>Up</span>
+            </div>
+          </Button>
+        </div>
+        <TextInput
+          value={searchFor}
+          onChange={(e) => setSearchFor(e.target.value)}
+          icon={
+            searchFor ? undefined : (
+              <div className="flex flex-row items-center text-gray-500 space-x-2">
+                <FiSearch size={20} />
+                <span>Search</span>
+              </div>
+            )
+          }
+        />
+        <Select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+        >
+          <option value="name-ascending">Sort by name</option>
+          <option value="name-descending">Sort by name (descending)</option>
+          <option value="date-ascending">Sort by date</option>
+          <option value="date-descending">Sort by date (descending)</option>
+          <option value="size-ascending">Sort by size</option>
+          <option value="size-descending">Sort by size (descending)</option>
+        </Select>
+      </div>
+      <div
+        className="relative grow bg-white rounded-lg border border-gray-300 overflow-hidden"
+        onClick={() => setSelection(undefined)}
+      >
+        {/* viewer body */}
+        <div className="flex flex-col h-full py-2 px-3 overflow-y-auto hide-scrollbar hover:show-scrollbar">
+          {loadingContent ? (
+            <div className="h-full w-full justify-items-center mt-5 ">
+              <Spinner size="lg" />
+            </div>
+          ) : (
+            <div className="grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-x-0">
+              {Object.values(content)
+                .filter((item) => {
+                  if (searchFor === "") return true;
+                  return item.name
+                    .toLowerCase()
+                    .includes(searchFor.toLowerCase());
+                })
+                .sort((a, b) => {
+                  if (a.type === b.type) {
+                    switch (sortBy) {
+                      case "name-ascending":
+                        return a.name.toLowerCase() < b.name.toLowerCase()
+                          ? -1
+                          : 1;
+                      case "name-descending":
+                        return a.name.toLowerCase() > b.name.toLowerCase()
+                          ? -1
+                          : 1;
+                      case "date-ascending":
+                        return a.mtime > b.mtime ? -1 : 1;
+                      case "date-descending":
+                        return a.mtime < b.mtime ? -1 : 1;
+                      case "size-ascending":
+                        if (a.type === "file" && b.type === "file")
+                          return a.size < b.size ? -1 : 1;
+                        // default to name-ascending
+                        return a.name.toLowerCase() < b.name.toLowerCase()
+                          ? -1
+                          : 1;
+                      case "size-descending":
+                        if (a.type === "file" && b.type === "file")
+                          return a.size > b.size ? -1 : 1;
+                        // default to name-ascending
+                        return a.name.toLowerCase() < b.name.toLowerCase()
+                          ? -1
+                          : 1;
+                      default:
+                        return 0;
+                    }
+                  }
+                  return a.type > b.type ? -1 : 1;
+                })
+                .map((item) => (
+                  <FSItem
+                    key={item.index}
+                    item={item}
+                    selected={selection === item.index}
+                    onClick={(e) => {
+                      setSelection(item.index);
+                      e.stopPropagation();
+                    }}
+                    onDoubleClick={() => {
+                      if (item.type === "file") {
+                        // open in new tab to try and show content in browser
+                        fetchFile(
+                          [...location, item.name],
+                          (blob) =>
+                            window.open(window.URL.createObjectURL(blob)),
+                          password
+                        );
+                      } else {
+                        setLocation((prev) => [...prev, item.name]);
+                      }
+                    }}
+                  />
+                ))}
+            </div>
+          )}
+        </div>
+        {/* file-info */}
+        {selection !== undefined && (
+          <div
+            className="absolute p-3 right-4 bottom-4 border rounded-md bg-gray-100 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col space-y-2">
+              <div className="flex flex-row space-x-2">
+                <span className="font-semibold text-nowrap">Name:</span>
+                <span>{content[selection].name}</span>
+              </div>
+              <div className="flex flex-row space-x-2">
+                <span className="font-semibold text-nowrap">
+                  Last modified:
+                </span>
+                <span>
+                  {new Date(
+                    // API reports datetime in seconds since epoch
+                    // > transform to milliseconds
+                    content[selection].mtime * 1000
+                  ).toUTCString()}
+                </span>
+              </div>
+              {content[selection].type === "file" && (
+                <div className="flex flex-row space-x-2">
+                  <span className="font-semibold text-nowrap">Size:</span>
+                  <span>
+                    {toHumanReadableSize(
+                      (content[selection] as FileProperties).size
+                    )}
+                  </span>
+                </div>
+              )}
+              <div className="flex flex-row space-x-2">
+                {content[selection].type === "file" && (
+                  <Button
+                    onClick={() =>
                       fetchFile(
-                        [...location, item.name],
+                        [...location, content[selection].name],
                         (blob) => window.open(window.URL.createObjectURL(blob)),
                         password
-                      );
-                    } else {
-                      setLocation((prev) => [...prev, item.name]);
+                      )
                     }
+                  >
+                    View in Browser
+                  </Button>
+                )}
+                <Button
+                  onClick={() => {
+                    fetchFile(
+                      [...location, content[selection].name],
+                      (blob) => {
+                        // open "save as"-dialog
+                        downloadRef.current!.href =
+                          window.URL.createObjectURL(blob);
+                        downloadRef.current!.download = content[selection].name;
+                        downloadRef.current!.click();
+                      },
+                      password
+                    );
                   }}
-                />
-              ))}
+                >
+                  Download
+                </Button>
+                <a ref={downloadRef} className="hidden" href="data:">
+                  placeholder
+                </a>
+              </div>
+            </div>
           </div>
         )}
       </div>
-      {/* file-info */}
-      {selection !== undefined && (
-        <div
-          className="absolute p-3 right-4 bottom-4 border rounded-md bg-gray-100 shadow-lg"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex flex-col space-y-2">
-            <div className="flex flex-row space-x-2">
-              <span className="font-semibold text-nowrap">Name:</span>
-              <span>{content[selection].name}</span>
-            </div>
-            <div className="flex flex-row space-x-2">
-              <span className="font-semibold text-nowrap">Last modified:</span>
-              <span>
-                {new Date(
-                  // API reports datetime in seconds since epoch
-                  // > transform to milliseconds
-                  content[selection].mtime * 1000
-                ).toUTCString()}
-              </span>
-            </div>
-            {content[selection].type === "file" && (
-              <div className="flex flex-row space-x-2">
-                <span className="font-semibold text-nowrap">Size:</span>
-                <span>
-                  {toHumanReadableSize(
-                    (content[selection] as FileProperties).size
-                  )}
-                </span>
-              </div>
-            )}
-            <div className="flex flex-row space-x-2">
-              {content[selection].type === "file" && (
-                <Button
-                  onClick={() =>
-                    fetchFile(
-                      [...location, content[selection].name],
-                      (blob) => window.open(window.URL.createObjectURL(blob)),
-                      password
-                    )
-                  }
-                >
-                  View in Browser
-                </Button>
-              )}
-              <Button
-                onClick={() => {
-                  fetchFile(
-                    [...location, content[selection].name],
-                    (blob) => {
-                      // open "save as"-dialog
-                      downloadRef.current!.href =
-                        window.URL.createObjectURL(blob);
-                      downloadRef.current!.download = content[selection].name;
-                      downloadRef.current!.click();
-                    },
-                    password
-                  );
-                }}
-              >
-                Download
-              </Button>
-              <a ref={downloadRef} className="hidden" href="data:">
-                placeholder
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
