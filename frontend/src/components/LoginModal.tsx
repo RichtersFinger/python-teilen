@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 
 import Modal from "./base/Modal";
 import TextInput from "./base/TextInput";
 import Spinner from "./base/Spinner";
+import { useToaster } from "./base/Toaster";
 
 interface LoginModalProps {
   show: boolean;
@@ -11,6 +12,8 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ show, onPassword }: LoginModalProps) {
+  const { toast } = useToaster();
+
   const [loading, setLoading] = useState(false);
   const [passwordOk, setPasswordOk] = useState(false);
   const [password, setPassword] = useState("");
@@ -26,12 +29,21 @@ export default function LoginModal({ show, onPassword }: LoginModalProps) {
         setLoading(false);
         setPasswordOk(response.ok);
         if (response.ok) onPassword(password);
+        else if (response.status !== 401)
+          toast(
+            "Failed to validate password.",
+            <FiAlertCircle className="text-red-500" size={20} />
+          );
       })
       .catch((error) => {
         setLoading(false);
+        toast(
+          "Failed to validate password.",
+          <FiAlertCircle className="text-red-500" size={20} />
+        );
         console.error(error);
       });
-  }, [password, onPassword]);
+  }, [toast, password, onPassword]);
 
   return show ? (
     <Modal
@@ -51,7 +63,7 @@ export default function LoginModal({ show, onPassword }: LoginModalProps) {
             ) : passwordOk ? (
               <FiCheckCircle className="text-green-500" size={25} />
             ) : password !== "" ? (
-              <FiXCircle className="text-red-500" size={25} />
+              <FiAlertCircle className="text-red-500" size={25} />
             ) : null}
           </div>
         </div>

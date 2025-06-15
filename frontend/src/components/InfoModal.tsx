@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { FiGithub } from "react-icons/fi";
+import { FiAlertCircle, FiGithub } from "react-icons/fi";
 import { AiOutlinePython } from "react-icons/ai";
 
+import { useToaster } from "./base/Toaster";
 import Modal from "./base/Modal";
 import Button from "./base/Button";
 import Logo from "./Logo";
@@ -14,6 +15,8 @@ interface InfoModalProps {
 }
 
 export default function InfoModal({ show, onDismiss }: InfoModalProps) {
+  const { toast } = useToaster();
+
   const [version, setVersion] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
@@ -23,12 +26,21 @@ export default function InfoModal({ show, onDismiss }: InfoModalProps) {
       .then((response) => {
         setLoading(false);
         if (response.ok) response.text().then((text) => setVersion(text));
+        else
+          toast(
+            "Failed to fetch software version.",
+            <FiAlertCircle className="text-red-500" size={20} />
+          );
       })
       .catch((error) => {
         setLoading(false);
+        toast(
+          "Failed to fetch software version.",
+          <FiAlertCircle className="text-red-500" size={20} />
+        );
         console.error(error);
       });
-  }, []);
+  }, [toast]);
 
   return show ? (
     <Modal
@@ -39,7 +51,7 @@ export default function InfoModal({ show, onDismiss }: InfoModalProps) {
           <Logo />
           <div className="flex flex-row space-x-2">
             <span>Software version: </span>
-            {loading ? <Spinner size="xs" /> : <span>{version}</span>}
+            {loading ? <Spinner size="xs" /> : <span>{version ?? "-"}</span>}
           </div>
           <div className="flex flex-row space-x-2">
             <a

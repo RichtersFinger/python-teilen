@@ -1,7 +1,13 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { FiChevronLeft, FiChevronUp, FiSearch } from "react-icons/fi";
+import {
+  FiAlertCircle,
+  FiChevronLeft,
+  FiChevronUp,
+  FiSearch,
+} from "react-icons/fi";
 
 import { ContentItem, FileProperties, FolderProperties } from "../types";
+import { useToaster } from "./base/Toaster";
 import { AuthContext } from "../App";
 import Spinner from "./base/Spinner";
 import Button from "./base/Button";
@@ -39,11 +45,13 @@ function toHumanReadableSize(size: number): string {
  * @param location file path
  * @param onBlob callback to be run when blob is read
  * @param password auth-info
+ * @param onError callback to be used in case a problem occurs
  */
 function fetchFile(
   location: string[],
+  password: string | undefined,
   onBlob: (blob: Blob) => void,
-  password: string | undefined
+  onError?: () => void
 ) {
   fetch(
     (process.env.REACT_APP_API_BASE_URL ?? "") +
@@ -60,11 +68,18 @@ function fetchFile(
     }
   )
     .then((response) => {
-      if (response.ok) {
-        response.blob().then((blob) => onBlob(blob));
-      }
+      if (response.ok)
+        response
+          .blob()
+          .then((blob) => onBlob(blob))
+          .catch((error) => {
+            onError?.();
+            console.error(error);
+          });
+      else onError?.();
     })
     .catch((error) => {
+      onError?.();
       console.error(error);
     });
 }
@@ -75,6 +90,8 @@ interface FSViewerProps {
 }
 
 export default function FSViewer({ location, setLocation }: FSViewerProps) {
+  const { toast } = useToaster();
+
   const password = useContext(AuthContext);
   const [selection, setSelection] = useState<number | undefined>(undefined);
   const downloadRef = useRef<HTMLAnchorElement>(null);
@@ -106,25 +123,46 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
       .then((response) => {
         setLoadingContent(false);
         if (response.ok) {
-          return response.json().then((json) =>
-            setContent(
-              (json as (FileProperties | FolderProperties)[])
-                .map((item, index) => {
-                  return { ...item, index };
-                })
-                .reduce((acc, item) => {
-                  acc[item.index] = item;
-                  return acc;
-                }, {} as Record<number, ContentItem>)
+          return response
+            .json()
+            .then((json) =>
+              setContent(
+                (json as (FileProperties | FolderProperties)[])
+                  .map((item, index) => {
+                    return { ...item, index };
+                  })
+                  .reduce((acc, item) => {
+                    acc[item.index] = item;
+                    return acc;
+                  }, {} as Record<number, ContentItem>)
+              )
             )
+            .catch((error) => {
+              setContent({});
+              toast(
+                `Failed to process index for '/${location.join("/")}'.`,
+                <FiAlertCircle className="text-red-500" size={20} />
+              );
+              console.error(error);
+            });
+        } else {
+          setContent({});
+          toast(
+            `Failed to fetch index for '/${location.join("/")}'.`,
+            <FiAlertCircle className="text-red-500" size={20} />
           );
         }
       })
       .catch((error) => {
         setLoadingContent(false);
+        setContent({});
+        toast(
+          `Failed to fetch index for '/${location.join("/")}'.`,
+          <FiAlertCircle className="text-red-500" size={20} />
+        );
         console.error(error);
       });
-  }, [location, password]);
+  }, [toast, location, password]);
 
   // track changed location in history
   useEffect(() => {
@@ -267,9 +305,20 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                         // open in new tab to try and show content in browser
                         fetchFile(
                           [...location, item.name],
+                          password,
                           (blob) =>
                             window.open(window.URL.createObjectURL(blob)),
-                          password
+                          () =>
+                            toast(
+                              `Failed to load file '/${[
+                                ...location,
+                                item.name,
+                              ].join("/")}'`,
+                              <FiAlertCircle
+                                className="text-red-500"
+                                size={20}
+                              />
+                            )
                         );
                       } else {
                         setLocation((prev) => [...prev, item.name]);
@@ -319,8 +368,16 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                     onClick={() =>
                       fetchFile(
                         [...location, content[selection].name],
+                        password,
                         (blob) => window.open(window.URL.createObjectURL(blob)),
-                        password
+                        () =>
+                          toast(
+                            `Failed to load file '/${[
+                              ...location,
+                              content[selection].name,
+                            ].join("/")}'`,
+                            <FiAlertCircle className="text-red-500" size={20} />
+                          )
                       )
                     }
                   >
@@ -331,6 +388,7 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                   onClick={() => {
                     fetchFile(
                       [...location, content[selection].name],
+                      password,
                       (blob) => {
                         // open "save as"-dialog
                         downloadRef.current!.href =
@@ -338,7 +396,14 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                         downloadRef.current!.download = content[selection].name;
                         downloadRef.current!.click();
                       },
-                      password
+                      () =>
+                        toast(
+                          `Failed to load file '/${[
+                            ...location,
+                            content[selection].name,
+                          ].join("/")}'`,
+                          <FiAlertCircle className="text-red-500" size={20} />
+                        )
                     );
                   }}
                 >

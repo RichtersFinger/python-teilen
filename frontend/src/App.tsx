@@ -1,5 +1,7 @@
 import { createContext, useEffect, useState } from "react";
+import { FiAlertCircle } from "react-icons/fi";
 
+import Toaster, { useToaster } from "./components/base/Toaster";
 import AppHeader from "./components/AppHeader";
 import FSViewer from "./components/FSViewer";
 import Spinner from "./components/base/Spinner";
@@ -8,6 +10,8 @@ import LoginModal from "./components/LoginModal";
 export const AuthContext = createContext<string | undefined>(undefined);
 
 export default function App() {
+  const { toast } = useToaster();
+
   const [password, setPassword] = useState<string | undefined>(undefined);
   const [passwordRequired, setPasswordRequired] = useState<boolean | undefined>(
     undefined
@@ -22,12 +26,26 @@ export default function App() {
             .json()
             .then((json) => setPasswordRequired(json.passwordRequired))
             .catch((error) => {
+              toast(
+                "Failed to process server configuration.",
+                <FiAlertCircle className="text-red-500" size={20} />
+              );
               console.error(error);
             });
-        }
+        } else
+          toast(
+            "Failed to fetch server configuration.",
+            <FiAlertCircle className="text-red-500" size={20} />
+          );
       })
-      .catch((error) => console.error(error));
-  }, []);
+      .catch((error) => {
+        toast(
+          "Failed to fetch server configuration.",
+          <FiAlertCircle className="text-red-500" size={20} />
+        );
+        console.error(error);
+      });
+  }, [toast]);
 
   return (
     <div className="flex top-0 left-0 h-screen w-screen bg-gray-50">
@@ -47,6 +65,7 @@ export default function App() {
           <FSViewer location={location} setLocation={setLocation} />
         )}
       </AuthContext.Provider>
+      <Toaster />
     </div>
   );
 }
