@@ -41,3 +41,9 @@
   width: 8px;
   height: 8px;
 }
+
+select.no-arrow {
+  -moz-appearance:none;
+  -webkit-appearance:none;
+  appearance:none;
+}
