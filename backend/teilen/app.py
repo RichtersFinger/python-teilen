@@ -7,6 +7,7 @@ import socket
 import urllib.request
 from urllib.parse import unquote
 from importlib.metadata import version
+from functools import wraps
 
 from flask import (
     Flask,
@@ -120,6 +121,21 @@ def print_welcome_message(config: AppConfig) -> None:
     print(delimiter)
 
 
+def login_required(password: Optional[str]):
+    """Protect endpoint with auth via 'X-Teilen-Auth'-header."""
+
+    def decorator(route):
+        @wraps(route)
+        def __():
+            if request.headers.get("X-Teilen-Auth") != password:
+                return Response("FAILED", mimetype="text/plain", status=401)
+            return route()
+
+        return __
+
+    return decorator
+
+
 def app_factory(config: AppConfig) -> Flask:
     """Returns teilen-Flask app."""
     if not config.WORKING_DIR.is_dir():
@@ -158,6 +174,21 @@ def app_factory(config: AppConfig) -> Flask:
         """
         return Response(version("teilen"), mimetype="text/plain", status=200)
 
+    @_app.route("/configuration", methods=["GET"])
+    def get_configuration():
+        """
+        Get basic info on configuration.
+        """
+        return jsonify({"passwordRequired": config.PASSWORD is not None}), 200
+
+    @_app.route("/login", methods=["GET"])
+    @login_required(config.PASSWORD)
+    def get_login():
+        """
+        Test login.
+        """
+        return Response("OK", mimetype="text/plain", status=200)
+
     def get_location(provide_default: bool = True) -> Optional[Path]:
         """Parse and return location-arg."""
         if request.args.get("location") is None:
@@ -167,6 +198,7 @@ def app_factory(config: AppConfig) -> Flask:
         return Path(unquote(request.args["location"]))
 
     @_app.route("/contents", methods=["GET"])
+    @login_required(config.PASSWORD)
     def get_contents():
         """
         Returns contents for given location.
@@ -219,6 +251,7 @@ def app_factory(config: AppConfig) -> Flask:
         )
 
     @_app.route("/content", methods=["GET"])
+    @login_required(config.PASSWORD)
     def get_content():
         """
         Returns file/folder (as archive) for given location.
