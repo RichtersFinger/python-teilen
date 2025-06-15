@@ -4,6 +4,10 @@ from typing import Optional
 from functools import wraps
 from pathlib import Path
 from urllib.parse import unquote
+from datetime import datetime
+from tempfile import TemporaryDirectory
+import zipfile
+from uuid import uuid4
 
 from flask import Flask, Response, jsonify, request, send_from_directory
 
@@ -139,4 +143,32 @@ def register_api(app: Flask, config: AppConfig):
             return send_from_directory(
                 config.WORKING_DIR, _location, as_attachment=True
             )
-        return Response("Not implemented.", mimetype="text/plain", status=501)
+
+        # generate archive in /tmp
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir).resolve()
+            archive_path = tmp_path / (
+                _location.name + "-" + str(uuid4()) + ".zip"
+            )
+            print(
+                f"[{datetime.now().isoformat()}] Creating archive "
+                + f"for '{_location.resolve()}' "
+                + f"in '{Path(archive_path).resolve()}'."
+            )
+            with zipfile.ZipFile(
+                archive_path, "w", zipfile.ZIP_STORED
+            ) as archive:
+                for f in _location.glob("**/*"):
+                    if f.is_file():
+                        archive.write(
+                            f,
+                            f.resolve().relative_to(
+                                _location.parent.resolve()
+                            ),
+                        )
+
+            return send_from_directory(
+                tmp_path,
+                archive_path.relative_to(tmp_path),
+                as_attachment=True,
+            )
