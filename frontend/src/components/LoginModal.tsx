@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 import Modal from "./base/Modal";
 import TextInput from "./base/TextInput";
@@ -11,6 +12,7 @@ interface LoginModalProps {
 
 export default function LoginModal({ show, onPassword }: LoginModalProps) {
   const [loading, setLoading] = useState(false);
+  const [passwordOk, setPasswordOk] = useState(false);
   const [password, setPassword] = useState("");
 
   useEffect(() => {
@@ -22,9 +24,8 @@ export default function LoginModal({ show, onPassword }: LoginModalProps) {
     })
       .then((response) => {
         setLoading(false);
-        if (response.ok) {
-          onPassword(password);
-        }
+        setPasswordOk(response.ok);
+        if (response.ok) onPassword(password);
       })
       .catch((error) => {
         setLoading(false);
@@ -45,7 +46,13 @@ export default function LoginModal({ show, onPassword }: LoginModalProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            {loading && <Spinner size="xs" />}
+            {loading ? (
+              <Spinner size="xs" />
+            ) : passwordOk ? (
+              <FiCheckCircle className="text-green-500" size={25} />
+            ) : password !== "" ? (
+              <FiXCircle className="text-red-500" size={25} />
+            ) : null}
           </div>
         </div>
       }

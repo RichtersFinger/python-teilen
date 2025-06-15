@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import { ContentItem, FileProperties, FolderProperties } from "../types";
+import { AuthContext } from "../App";
 import Spinner from "./base/Spinner";
 import Button from "./base/Button";
 import FSItem from "./FSItem";
 
+/**
+ * Returns size in human readable unit.
+ * @param size size in B
+ */
 function toHumanReadableSize(size: number): string {
   const units = ["B", "kB", "MB", "GB", "TB"];
   let unit = -1;
@@ -18,13 +23,30 @@ function toHumanReadableSize(size: number): string {
   return `${(size / 1024 ** unit).toFixed(unit <= 1 ? 0 : 1)} ${units[unit]}`;
 }
 
-function fetchFile(location: string[], onBlob: (blob: Blob) => void) {
+/**
+ * Fetch file and handle response.
+ * @param location file path
+ * @param onBlob callback to be run when blob is read
+ * @param password auth-info
+ */
+function fetchFile(
+  location: string[],
+  onBlob: (blob: Blob) => void,
+  password: string | undefined
+) {
   fetch(
     (process.env.REACT_APP_API_BASE_URL ?? "") +
       "/content?" +
       new URLSearchParams({
         location: encodeURIComponent(location.join("/")),
-      }).toString()
+      }).toString(),
+    {
+      headers: password
+        ? {
+            "X-Teilen-Auth": password,
+          }
+        : {},
+    }
   )
     .then((response) => {
       if (response.ok) {
@@ -42,6 +64,7 @@ interface FSViewerProps {
 }
 
 export default function FSViewer({ location, setLocation }: FSViewerProps) {
+  const password = useContext(AuthContext);
   const [selection, setSelection] = useState<number | undefined>(undefined);
   const downloadRef = useRef<HTMLAnchorElement>(null);
 
@@ -56,7 +79,14 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
         "/contents?" +
         new URLSearchParams({
           location: encodeURIComponent(location.join("/")),
-        }).toString()
+        }).toString(),
+      {
+        headers: password
+          ? {
+              "X-Teilen-Auth": password,
+            }
+          : {},
+      }
     )
       .then((response) => {
         setLoadingContent(false);
@@ -117,8 +147,10 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                   onDoubleClick={() => {
                     if (item.type === "file") {
                       // open in new tab to try and show content in browser
-                      fetchFile([...location, item.name], (blob) =>
-                        window.open(window.URL.createObjectURL(blob))
+                      fetchFile(
+                        [...location, item.name],
+                        (blob) => window.open(window.URL.createObjectURL(blob)),
+                        password
                       );
                     } else {
                       setLocation((prev) => [...prev, item.name]);
@@ -164,8 +196,10 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
               {content[selection].type === "file" && (
                 <Button
                   onClick={() =>
-                    fetchFile([...location, content[selection].name], (blob) =>
-                      window.open(window.URL.createObjectURL(blob))
+                    fetchFile(
+                      [...location, content[selection].name],
+                      (blob) => window.open(window.URL.createObjectURL(blob)),
+                      password
                     )
                   }
                 >
@@ -174,13 +208,17 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
               )}
               <Button
                 onClick={() => {
-                  fetchFile([...location, content[selection].name], (blob) => {
-                    // open "save as"-dialog
-                    downloadRef.current!.href =
-                      window.URL.createObjectURL(blob);
-                    downloadRef.current!.download = content[selection].name;
-                    downloadRef.current!.click();
-                  });
+                  fetchFile(
+                    [...location, content[selection].name],
+                    (blob) => {
+                      // open "save as"-dialog
+                      downloadRef.current!.href =
+                        window.URL.createObjectURL(blob);
+                      downloadRef.current!.download = content[selection].name;
+                      downloadRef.current!.click();
+                    },
+                    password
+                  );
                 }}
               >
                 Download
