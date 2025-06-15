@@ -124,7 +124,7 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
         setLoadingContent(false);
         console.error(error);
       });
-  }, [location]);
+  }, [location, password]);
 
   // track changed location in history
   useEffect(() => {

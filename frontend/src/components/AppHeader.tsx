@@ -20,12 +20,13 @@ export default function AppHeader({
 
   // reverse scroll-direction for navigation-bar (horizontal <> vertical)
   useEffect(() => {
+    const navigationElement = navigationRef.current;
     function handleWheel(event: WheelEvent) {
-      navigationRef.current?.scrollBy(event.deltaY > 0 ? 20 : -20, 0);
+      navigationElement?.scrollBy(event.deltaY > 0 ? 20 : -20, 0);
     }
-    navigationRef.current?.addEventListener("wheel", handleWheel);
+    navigationElement?.addEventListener("wheel", handleWheel);
     return () => {
-      navigationRef.current?.removeEventListener("wheel", handleWheel);
+      navigationElement?.removeEventListener("wheel", handleWheel);
     };
   }, []);
 

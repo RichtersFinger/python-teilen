@@ -31,7 +31,7 @@ export default function LoginModal({ show, onPassword }: LoginModalProps) {
         setLoading(false);
         console.error(error);
       });
-  }, [password]);
+  }, [password, onPassword]);
 
   return show ? (
     <Modal
