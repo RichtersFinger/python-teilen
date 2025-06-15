@@ -4,6 +4,11 @@ A simple application to share data via http with python flask backend and react 
 
 Share the contents of a local directory with a single command over the network.
 
+It features
+* a lightweight and responsive interface,
+* downloads for entire directories as ZIP-files, and
+* a simple authentication-system.
+
 See the [demo-gallery](./gallery/gallery.md) for some impressions.
 
 ## Install
@@ -25,6 +30,17 @@ teilen <path/to/directory>
 By default, the web-UI is available at `http://localhost:27183`.
 If you are done, stop by hitting `Ctrl`+`C`.
 
+### Command line options
+* the last argument to the cli is interpreted as the path to the directory that should be shared, e.g.,
+  ```
+  teilen <path/to/directory>
+  ```
+  omit to share the current working directory
+* `-p`, `--password`: (optionally) set a password that is required to access the share
+
+  The authentication method is implement via a custom request-header `X-Teilen-Auth` that, if the option is set, is required for any content-related endpoints of the `teilen`-API.
+* `--port`: (optionally) changes the port that the application is running on (default is 27183)
+
 ## Update
 Run
 ```
@@ -35,7 +51,10 @@ to get the latest version.
 ## Environment configuration
 The following environment variables can be set to configure `teilen`:
 
-- `PORT` [DEFAULT 27183] teilen port
+- `WORKING_DIR` [DEFAULT \<cwd>] path to the shared directory (see also the argument to the cli)
+- `PASSWORD` [DEFAULT null] optional password to access the share (see also the cli-option `-p`, `--password`)
+- `PORT` [DEFAULT 27183] teilen port (see also the cli-option `--port`)
+- `SECRET_KEY` [DEFAULT \<random uuid>] secret key
 
 ### Running in dev-mode
 The development setup requires both `python3` and the node package manager `npm` to be installed.
