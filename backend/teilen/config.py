@@ -20,3 +20,4 @@ class AppConfig:
     STATIC_PATH = Path(__file__).parent / "client"
     SECRET_KEY = os.environ.get("SECRET_KEY", str(uuid4()))
     WORKING_DIR = Path(os.environ.get("WORKING_DIR", Path.cwd())).resolve()
+    PASSWORD = os.environ.get("PASSWORD")

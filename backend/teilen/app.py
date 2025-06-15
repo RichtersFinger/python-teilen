@@ -97,6 +97,11 @@ def print_welcome_message(config: AppConfig) -> None:
             ),
         ]
         + (
+            ["Password protection is active."]
+            if config.PASSWORD is not None
+            else []
+        )
+        + (
             ["", "The following addresses have been detected automatically:"]
             if url_options
             else []
@@ -260,6 +265,51 @@ def app_factory(config: AppConfig) -> Flask:
     return _app
 
 
+def parse_cmdline_args(config: AppConfig):
+    """Update config using command line arguments."""
+    index = 1
+    while True:
+        if index >= len(sys.argv):
+            break
+
+        # password
+        if sys.argv[index] in ["-p", "--password"]:
+            if len(sys.argv) <= index + 1:
+                print(
+                    "\033[1;31mERROR\033[0m: "
+                    + f"Missing value for option '{sys.argv[index]}'.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            config.PASSWORD = sys.argv[index + 1]
+            index += 2
+            continue
+
+        # port
+        if sys.argv[index] in ["--port"]:
+            if len(sys.argv) <= index + 1:
+                print(
+                    "\033[1;31mERROR\033[0m: "
+                    + f"Missing value for option '{sys.argv[index]}'.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            config.PORT = sys.argv[index + 1]
+            index += 2
+            continue
+
+        # working directory (should by the last and a singular argument)
+        if len(sys.argv) > index + 1:
+            print(
+                "\033[1;31mERROR\033[0m: "
+                + f"Unknown option '{sys.argv[index]}'.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        config.WORKING_DIR = Path(sys.argv[index]).resolve()
+        index += 1
+
+
 def run(app=None, config=None):
     """Run flask-app."""
     # load default config
@@ -267,9 +317,7 @@ def run(app=None, config=None):
         config = AppConfig()
 
     # parse command line arguments
-    # * first arg is used as path to be shared
-    if len(sys.argv) > 1:
-        config.WORKING_DIR = Path(sys.argv[1]).resolve()
+    parse_cmdline_args(config)
 
     # load default app
     if not app:
@@ -278,9 +326,8 @@ def run(app=None, config=None):
     # not intended for production due to, e.g., cors
     if config.MODE != "prod":
         print(
-            "\033[1;33mWARNING: RUNNING IN UNEXPECTED MODE '"
-            + config.MODE
-            + "'.\033[0m",
+            "\033[1;33mWARNING\033[0m: "
+            + f"Running in unexpected MODE '{config.Mode}'.",
             file=sys.stderr,
         )
 
@@ -289,7 +336,8 @@ def run(app=None, config=None):
         import gunicorn.app.base
     except ImportError:
         print(
-            "\033[1;33mWARNING: RUNNING WITHOUT PROPER WSGI-SERVER.\033[0m",
+            "\033[1;33mWARNING\033[0m: "
+            + "Running without proper wsgi-server.",
             file=sys.stderr,
         )
         app.run(host="0.0.0.0", port=config.PORT)
