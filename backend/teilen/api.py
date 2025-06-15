@@ -53,7 +53,9 @@ def register_api(app: Flask, config: AppConfig):
             if provide_default:
                 return config.WORKING_DIR
             return None
-        return Path(unquote(request.args["location"]))
+        return (
+            config.WORKING_DIR / unquote(request.args["location"])
+        ).resolve()
 
     @app.route("/contents", methods=["GET"])
     @login_required(config.PASSWORD)
@@ -64,23 +66,15 @@ def register_api(app: Flask, config: AppConfig):
         _location = get_location()
 
         # check for problems
-        if _location.is_absolute():
-            return Response(
-                "Only relative paths are supported.",
-                mimetype="text/plain",
-                status=403,
-            )
-        try:
-            if (
-                not _location.resolve()
-                .relative_to(config.WORKING_DIR)
-                .is_dir()
-            ):
-                return Response(
-                    "Does not exist.", mimetype="text/plain", status=404
-                )
-        except ValueError:
+        if (
+            config.WORKING_DIR != _location
+            and config.WORKING_DIR not in _location.parents
+        ):
             return Response("Not allowed.", mimetype="text/plain", status=403)
+        if not _location.is_dir():
+            return Response(
+                "Does not exist.", mimetype="text/plain", status=404
+            )
 
         contents = list(_location.glob("*"))
         folders = filter(lambda p: p.is_dir(), contents)
@@ -115,60 +109,55 @@ def register_api(app: Flask, config: AppConfig):
         Returns file/folder (as archive) for given location.
         """
         _location = get_location(False)
+
         if _location is None:
             return Response(
                 "Missing 'location' arg.", mimetype="text/plain", status=400
             )
 
         # check for problems
-        if _location.is_absolute():
-            return Response(
-                "Only relative paths are supported.",
-                mimetype="text/plain",
-                status=403,
-            )
-        try:
-            if (
-                not _location.resolve()
-                .relative_to(config.WORKING_DIR)
-                .exists()
-            ):
-                return Response(
-                    "Does not exist.", mimetype="text/plain", status=404
-                )
-        except ValueError:
+        if config.WORKING_DIR not in _location.parents:
             return Response("Not allowed.", mimetype="text/plain", status=403)
+        if not _location.exists():
+            return Response(
+                "Does not exist.", mimetype="text/plain", status=404
+            )
 
         if _location.is_file():
             return send_from_directory(
-                config.WORKING_DIR, _location, as_attachment=True
+                config.WORKING_DIR,
+                _location.relative_to(config.WORKING_DIR),
+                as_attachment=True,
             )
 
         # generate archive in /tmp
-        with TemporaryDirectory() as tmp_dir:
-            tmp_path = Path(tmp_dir).resolve()
-            archive_path = tmp_path / (
-                _location.name + "-" + str(uuid4()) + ".zip"
-            )
-            print(
-                f"[{datetime.now().isoformat()}] Creating archive "
-                + f"for '{_location.resolve()}' "
-                + f"in '{Path(archive_path).resolve()}'."
-            )
-            with zipfile.ZipFile(
-                archive_path, "w", zipfile.ZIP_STORED
-            ) as archive:
-                for f in _location.glob("**/*"):
-                    if f.is_file():
-                        archive.write(
-                            f,
-                            f.resolve().relative_to(
-                                _location.parent.resolve()
-                            ),
-                        )
+        if _location.is_dir():
+            with TemporaryDirectory() as tmp_dir:
+                tmp_path = Path(tmp_dir).resolve()
+                archive_path = tmp_path / (
+                    _location.name + "-" + str(uuid4()) + ".zip"
+                )
+                print(
+                    f"[{datetime.now().isoformat()}] Creating archive "
+                    + f"for '{_location.resolve()}' "
+                    + f"in '{Path(archive_path).resolve()}'."
+                )
+                with zipfile.ZipFile(
+                    archive_path, "w", zipfile.ZIP_STORED
+                ) as archive:
+                    for f in _location.glob("**/*"):
+                        if f.is_file():
+                            archive.write(
+                                f,
+                                f.resolve().relative_to(
+                                    _location.parent.resolve()
+                                ),
+                            )
 
-            return send_from_directory(
-                tmp_path,
-                archive_path.relative_to(tmp_path),
-                as_attachment=True,
-            )
+                return send_from_directory(
+                    tmp_path,
+                    archive_path.relative_to(tmp_path),
+                    as_attachment=True,
+                )
+
+        return Response("Unkown type.", mimetype="text/plain", status=501)
