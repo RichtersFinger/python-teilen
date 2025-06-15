@@ -3,6 +3,7 @@ import {
   FiAlertCircle,
   FiChevronLeft,
   FiChevronUp,
+  FiRotateCw,
   FiSearch,
 } from "react-icons/fi";
 
@@ -188,8 +189,8 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
        * - filter by name
        * - sort-by: name, file-size (sort dir by name), date
        */}
-      <div className="flex justify-between space-x-2">
-        <div className="flex flex-row space-x-2">
+      <div className="flex flex-wrap space-x-2 md:flex-row md:justify-between">
+        <div className="flex flex-row space-x-2 py-1">
           <Button
             disabled={history.length <= 1}
             onClick={() => {
@@ -212,30 +213,46 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
               <FiChevronUp /> <span>Up</span>
             </div>
           </Button>
+          <Button
+            disabled={loadingContent}
+            onClick={() => setLocation((prev) => [...prev])}
+          >
+            <div className="flex flex-row items-center">
+              {loadingContent ? <Spinner size="xs" /> : <FiRotateCw />}
+              {
+                // create same size on container
+                <span className="invisible w-0">Refresh</span>
+              }
+            </div>
+          </Button>
         </div>
-        <TextInput
-          value={searchFor}
-          onChange={(e) => setSearchFor(e.target.value)}
-          icon={
-            searchFor ? undefined : (
-              <div className="flex flex-row items-center text-gray-500 space-x-2">
-                <FiSearch size={20} />
-                <span>Search</span>
-              </div>
-            )
-          }
-        />
-        <Select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-        >
-          <option value="name-ascending">Sort by name</option>
-          <option value="name-descending">Sort by name (descending)</option>
-          <option value="date-ascending">Sort by date</option>
-          <option value="date-descending">Sort by date (descending)</option>
-          <option value="size-ascending">Sort by size</option>
-          <option value="size-descending">Sort by size (descending)</option>
-        </Select>
+        <div className="py-1">
+          <TextInput
+            value={searchFor}
+            onChange={(e) => setSearchFor(e.target.value)}
+            icon={
+              searchFor ? undefined : (
+                <div className="flex flex-row items-center text-gray-500 space-x-2">
+                  <FiSearch size={20} />
+                  <span>Search</span>
+                </div>
+              )
+            }
+          />
+        </div>
+        <div className="py-1">
+          <Select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+          >
+            <option value="name-ascending">Sort by name</option>
+            <option value="name-descending">Sort by name (descending)</option>
+            <option value="date-ascending">Sort by date</option>
+            <option value="date-descending">Sort by date (descending)</option>
+            <option value="size-ascending">Sort by size</option>
+            <option value="size-descending">Sort by size (descending)</option>
+          </Select>
+        </div>
       </div>
       <div
         className="relative grow bg-white rounded-lg border border-gray-300 overflow-hidden"
