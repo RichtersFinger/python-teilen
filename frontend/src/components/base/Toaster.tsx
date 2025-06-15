@@ -14,7 +14,8 @@ interface ToastStore {
   subscribers: Set<() => void>;
   get: () => Toast[];
   subscribe: (callback: () => void) => () => void;
-  toast: (message: string, icon?: React.ReactNode, duration?: number) => void;
+  toast: (message: string, icon?: React.ReactNode, duration?: number) => number;
+  makeToast: (toast: Toast) => void;
   dropToast: (index: number) => void;
 }
 
@@ -30,9 +31,14 @@ const toastStore: ToastStore = {
     return () => toastStore.subscribers.delete(callback);
   },
   toast(message, icon, duration) {
+    const id = Date.now();
+    toastStore.makeToast({ id, message, icon, duration: duration || 5000 });
+    return id;
+  },
+  makeToast(toast) {
     toastStore.toasts = [
       ...toastStore.toasts,
-      { id: Date.now(), message, icon, duration: duration || 5000 },
+      toast,
     ];
     toastStore.subscribers.forEach((callback) => callback());
   },
@@ -43,24 +49,31 @@ const toastStore: ToastStore = {
 };
 
 /**
- * Toaster-hook that exports.
- * @inner toasts currently existing Toasts
- * @inner toast callback to generate new Toast
- * @inner dropToast callback to drop specific Toast
+ * Toaster-hook that exports
+ * @prop "toast" callback to generate new Toast
+ * @prop "makeToast" callback to insert existing Toast
+ * @prop "dropToast" callback to drop specific Toast
  */
 export function useToaster() {
-  const toasts = useSyncExternalStore(toastStore.subscribe, toastStore.get);
-
   return {
-    toasts,
     toast: toastStore.toast,
+    makeToast: toastStore.makeToast,
     dropToast: toastStore.dropToast,
   };
 }
 
+/**
+ * Toast-hook that returns currently existing Toasts.
+ */
+export function useToasts() {
+  const toasts = useSyncExternalStore(toastStore.subscribe, toastStore.get);
+  return toasts;
+}
+
 // toaster-component
 export default function Toaster() {
-  const { toasts, dropToast } = useToaster();
+  const toasts = useToasts();
+  const { dropToast } = useToaster();
   const [timeouts, setTimeouts] = useState<NodeJS.Timeout[]>([]);
 
   useEffect(() => {
