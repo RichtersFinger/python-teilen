@@ -26,7 +26,7 @@ export default function FSItem({
       ) : (
         <img src="/folder2.svg" alt="folder" />
       )}
-      <span className={`text-center ${!selected && "line-clamp-1"}`}>
+      <span className={`text-center break-all ${!selected && "line-clamp-1"}`}>
         {item.name}
       </span>
     </div>
