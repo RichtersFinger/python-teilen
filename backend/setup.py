@@ -12,7 +12,7 @@ except FileNotFoundError:
 
 
 setup(
-    version=os.environ.get("VERSION", "0.2.0"),
+    version=os.environ.get("VERSION", "0.2.1"),
     name="teilen",
     description="a simple application to share data via http with python flask backend and react frontend",
     long_description=long_description,
@@ -21,7 +21,7 @@ setup(
     author_email="srichters@uni-muenster.de",
     license="MIT",
     url="https://pypi.org/project/teilen/",
-    project_urls={"Source": "https://github.com/RichtersFinger/teilen"},
+    project_urls={"Source": "https://github.com/RichtersFinger/python-teilen"},
     python_requires=">=3.10",
     install_requires=[
         "Flask>=3,<4",
@@ -37,7 +37,7 @@ setup(
         ],
     },
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: End Users/Desktop",
         "Topic :: Communications",
         "Topic :: Communications :: File Sharing",
