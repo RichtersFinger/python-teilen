@@ -33,7 +33,7 @@ If you are done, stop by hitting `Ctrl`+`C`.
 ### Command line options
 * the last argument to the cli is interpreted as the path to the directory that should be shared, e.g.,
   ```
-  teilen <path/to/directory>
+  teilen <options> <path/to/directory>
   ```
   omit to share the current working directory
 * `-p`, `--password`: (optionally) set a password that is required to access the share
