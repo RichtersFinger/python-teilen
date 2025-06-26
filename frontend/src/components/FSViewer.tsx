@@ -10,6 +10,7 @@ import {
 import { ContentItem, FileProperties, FolderProperties } from "../types";
 import { useToaster } from "./base/Toaster";
 import { AuthContext } from "../App";
+import Modal from "./base/Modal";
 import Spinner from "./base/Spinner";
 import Button from "./base/Button";
 import FSItem from "./FSItem";
@@ -46,14 +47,19 @@ function toHumanReadableSize(size: number): string {
  * @param location file path
  * @param onBlob callback to be run when blob is read
  * @param password auth-info
+ * @param onLoading callback to be used before running fetch
+ * @param onComplete callback to be used after everything is loaded
  * @param onError callback to be used in case a problem occurs
  */
 function fetchFile(
   location: string[],
   password: string | undefined,
   onBlob: (blob: Blob) => void,
+  onLoading?: () => void,
+  onComplete?: () => void,
   onError?: () => void
 ) {
+  onLoading?.();
   fetch(
     (process.env.REACT_APP_API_BASE_URL ?? "") +
       "/content?" +
@@ -72,7 +78,10 @@ function fetchFile(
       if (response.ok)
         response
           .blob()
-          .then((blob) => onBlob(blob))
+          .then((blob) => {
+            onComplete?.();
+            onBlob(blob);
+          })
           .catch((error) => {
             onError?.();
             console.error(error);
@@ -99,6 +108,8 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
 
   const [loadingContent, setLoadingContent] = useState(false);
   const [content, setContent] = useState<Record<number, ContentItem>>({});
+
+  const [preparingDownload, setPreparingDownload] = useState(false);
 
   const [history, setHistory] = useState<string[][]>([]);
   const [searchFor, setSearchFor] = useState("");
@@ -184,6 +195,19 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
 
   return (
     <div className="flex flex-col w-screen m-2 mt-16 space-y-2">
+      {/*
+       * loading-state modal
+       */}
+      {preparingDownload && (
+        <Modal
+          header={<h2 className="text-xl font-bold">Preparing download..</h2>}
+          body={
+            <div className="flex items-center justify-center m-5">
+              <Spinner />
+            </div>
+          }
+        />
+      )}
       {/* toolbar
        * - back-navigation
        * - filter by name
@@ -325,7 +349,10 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                           password,
                           (blob) =>
                             window.open(window.URL.createObjectURL(blob)),
-                          () =>
+                          () => setPreparingDownload(true),
+                          () => setPreparingDownload(false),
+                          () => {
+                            setPreparingDownload(false);
                             toast(
                               `Failed to load file '/${[
                                 ...location,
@@ -335,7 +362,8 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                                 className="text-red-500"
                                 size={20}
                               />
-                            )
+                            );
+                          }
                         );
                       } else {
                         setLocation((prev) => [...prev, item.name]);
@@ -387,14 +415,18 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                         [...location, content[selection].name],
                         password,
                         (blob) => window.open(window.URL.createObjectURL(blob)),
-                        () =>
+                        () => setPreparingDownload(true),
+                        () => setPreparingDownload(false),
+                        () => {
+                          setPreparingDownload(false);
                           toast(
                             `Failed to load file '/${[
                               ...location,
                               content[selection].name,
                             ].join("/")}'`,
                             <FiAlertCircle className="text-red-500" size={20} />
-                          )
+                          );
+                        }
                       )
                     }
                   >
@@ -413,14 +445,18 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                         downloadRef.current!.download = content[selection].name;
                         downloadRef.current!.click();
                       },
-                      () =>
+                      () => setPreparingDownload(true),
+                      () => setPreparingDownload(false),
+                      () => {
+                        setPreparingDownload(false);
                         toast(
                           `Failed to load file '/${[
                             ...location,
                             content[selection].name,
                           ].join("/")}'`,
                           <FiAlertCircle className="text-red-500" size={20} />
-                        )
+                        );
+                      }
                     );
                   }}
                 >
