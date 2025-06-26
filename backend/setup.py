@@ -12,7 +12,7 @@ except FileNotFoundError:
 
 
 setup(
-    version=os.environ.get("VERSION", "0.2.1"),
+    version=os.environ.get("VERSION", "0.3.0"),
     name="teilen",
     description="a simple application to share data via http with python flask backend and react frontend",
     long_description=long_description,

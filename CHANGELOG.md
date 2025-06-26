@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - 2025-06-26
+
+### Added
+
+- added loading state for downloads
+
 ## [0.2.1] - 2025-06-16
 
 ### Fixed
