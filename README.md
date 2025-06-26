@@ -9,7 +9,7 @@ It features
 * downloads for entire directories as ZIP-files, and
 * a simple authentication-system.
 
-See the [demo-gallery](./gallery/gallery.md) for some impressions.
+See the [demo-gallery](https://github.com/RichtersFinger/python-teilen/blob/main/gallery/gallery.md) for some impressions.
 
 ## Install
 `teilen` can be installed using `pip` by entering
