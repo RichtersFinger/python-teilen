@@ -1,5 +1,11 @@
 # Changelog
 
+## [?] - 2025-??-??
+
+### Fixed
+
+- removed unused dependencies
+
 ## [0.3.0] - 2025-06-26
 
 ### Added
