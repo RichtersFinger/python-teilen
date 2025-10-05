@@ -32,6 +32,7 @@ def load_cors(_app: Flask, url: str) -> None:
         print("INFO: Configuring app for CORS.", file=sys.stderr)
         _ = CORS(
             _app,
+            supports_credentials=True,
             resources={"*": {"origins": url}},
         )
 

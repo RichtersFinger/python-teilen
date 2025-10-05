@@ -21,6 +21,7 @@ export default function LoginModal({ show, onPassword }: LoginModalProps) {
   useEffect(() => {
     setLoading(true);
     fetch((process.env.REACT_APP_API_BASE_URL ?? "") + "/login", {
+      credentials: "include",
       headers: {
         "X-Teilen-Auth": password,
       },

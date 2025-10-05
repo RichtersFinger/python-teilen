@@ -66,13 +66,7 @@ function fetchFile(
       new URLSearchParams({
         location: encodeURIComponent(location.join("/")),
       }).toString(),
-    {
-      headers: password
-        ? {
-            "X-Teilen-Auth": password,
-          }
-        : {},
-    }
+    { credentials: "include" }
   )
     .then((response) => {
       if (response.ok)
@@ -124,13 +118,7 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
         new URLSearchParams({
           location: encodeURIComponent(location.join("/")),
         }).toString(),
-      {
-        headers: password
-          ? {
-              "X-Teilen-Auth": password,
-            }
-          : {},
-      }
+      { credentials: "include" }
     )
       .then((response) => {
         setLoadingContent(false);

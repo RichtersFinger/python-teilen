@@ -17,6 +17,7 @@ from flask import (
     Response,
     jsonify,
     request,
+    session,
     send_file,
     send_from_directory,
 )
@@ -25,12 +26,18 @@ from teilen.config import AppConfig
 
 
 def login_required(password: Optional[str]):
-    """Protect endpoint with auth via 'X-Teilen-Auth'-header."""
+    """
+    Protect endpoint with auth via 'teilen_session'-cookie or
+    'X-Teilen-Auth'-header.
+    """
 
     def decorator(route):
         @wraps(route)
         def __():
-            if request.headers.get("X-Teilen-Auth") != password:
+            if (
+                session.get("password", request.headers.get("X-Teilen-Auth"))
+                != password
+            ):
                 return Response("FAILED", mimetype="text/plain", status=401)
             return route()
 
@@ -88,9 +95,8 @@ def register_api(app: Flask, config: AppConfig):
     @app.route("/login", methods=["GET"])
     @login_required(config.PASSWORD)
     def get_login():
-        """
-        Test login.
-        """
+        """Test login."""
+        session["password"] = config.PASSWORD
         return Response("OK", mimetype="text/plain", status=200)
 
     def get_location(provide_default: bool = True) -> Optional[Path]:

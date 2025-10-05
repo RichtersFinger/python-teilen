@@ -38,7 +38,9 @@ If you are done, stop by hitting `Ctrl`+`C`.
   omit to share the current working directory
 * `-p`, `--password`: (optionally) set a password that is required to access the share
 
-  The authentication method is implement via a custom request-header `X-Teilen-Auth` that, if the option is set, is required for any content-related endpoints of the `teilen`-API.
+  If the option is set, authentication is required for any content-related endpoints of the `teilen`-API.
+  The primary method for authentication is the session-cookie (`teilen_session`).
+  An alternative authentication method is implemented via a custom request-header `X-Teilen-Auth`.
 * `--port`: (optionally) changes the port that the application is running on (default is 27183)
 
 ## Update
