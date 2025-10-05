@@ -55,6 +55,8 @@ The following environment variables can be set to configure `teilen`:
 - `PASSWORD` [DEFAULT null] optional password to access the share (see also the cli-option `-p`, `--password`)
 - `PORT` [DEFAULT 27183] teilen port (see also the cli-option `--port`)
 - `SECRET_KEY` [DEFAULT \<random uuid>] secret key
+- `ARCHIVE_BUILD_CONCURRENCY` [DEFAULT 3] number of concurrent archive built-jobs
+- `TMPDIR` [DEFAULT \<system tmp-directory>] temporary directory where archives are stored
 
 ### Running in dev-mode
 The development setup requires both `python3` and the node package manager `npm` to be installed.

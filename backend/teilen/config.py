@@ -21,3 +21,6 @@ class AppConfig:
     SECRET_KEY = os.environ.get("SECRET_KEY", str(uuid4()))
     WORKING_DIR = Path(os.environ.get("WORKING_DIR", Path.cwd())).resolve()
     PASSWORD = os.environ.get("PASSWORD")
+    ARCHIVE_BUILD_CONCURRENCY = int(
+        os.environ.get("ARCHIVE_BUILD_CONCURRENCY", 3)
+    )
