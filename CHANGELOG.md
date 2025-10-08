@@ -2,6 +2,15 @@
 
 ## [?] - 2025-??-??
 
+### Changed
+
+- refactored file-download to supported streamed data
+- refactored archive-creation into an asynchronous job and implement proper progress-feedback in client
+
+### Added
+
+- added alternative auth via session-cookie
+
 ### Fixed
 
 - removed unused dependencies
