@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   FiAlertCircle,
   FiChevronLeft,
@@ -8,6 +8,7 @@ import {
 } from "react-icons/fi";
 
 import { ContentItem, FileProperties, FolderProperties } from "../types";
+import { toHumanReadableSize } from "./util";
 import { useToaster } from "./base/Toaster";
 import { AuthContext } from "../App";
 import Modal from "./base/Modal";
@@ -16,6 +17,7 @@ import Button from "./base/Button";
 import FSItem from "./FSItem";
 import TextInput from "./base/TextInput";
 import Select from "./base/Select";
+import ArchiveDownloadModal from "./ArchiveDownloadModal";
 
 type SortBy =
   | "name-ascending"
@@ -24,23 +26,6 @@ type SortBy =
   | "date-descending"
   | "size-ascending"
   | "size-descending";
-
-/**
- * Returns size in human readable unit.
- * @param size size in B
- */
-function toHumanReadableSize(size: number): string {
-  const units = ["B", "kB", "MB", "GB", "TB"];
-  let unit = -1;
-  for (let i = 0; i < units.length; i++) {
-    if (size < 1024 ** (i + 1)) {
-      unit = i;
-      break;
-    }
-  }
-  if (unit === -1) return "> 1000 TB";
-  return `${(size / 1024 ** unit).toFixed(unit <= 1 ? 0 : 1)} ${units[unit]}`;
-}
 
 /**
  * Fetch file and handle response.
@@ -66,13 +51,7 @@ function fetchFile(
       new URLSearchParams({
         location: encodeURIComponent(location.join("/")),
       }).toString(),
-    {
-      headers: password
-        ? {
-            "X-Teilen-Auth": password,
-          }
-        : {},
-    }
+    { credentials: "include" }
   )
     .then((response) => {
       if (response.ok)
@@ -104,12 +83,14 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
 
   const password = useContext(AuthContext);
   const [selection, setSelection] = useState<number | undefined>(undefined);
-  const downloadRef = useRef<HTMLAnchorElement>(null);
 
   const [loadingContent, setLoadingContent] = useState(false);
   const [content, setContent] = useState<Record<number, ContentItem>>({});
 
   const [preparingDownload, setPreparingDownload] = useState(false);
+  const [archiveId, setArchiveId] = useState<string | undefined>(
+    undefined
+  );
 
   const [history, setHistory] = useState<string[][]>([]);
   const [searchFor, setSearchFor] = useState("");
@@ -124,13 +105,7 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
         new URLSearchParams({
           location: encodeURIComponent(location.join("/")),
         }).toString(),
-      {
-        headers: password
-          ? {
-              "X-Teilen-Auth": password,
-            }
-          : {},
-      }
+      { credentials: "include" }
     )
       .then((response) => {
         setLoadingContent(false);
@@ -283,6 +258,13 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
         onClick={() => setSelection(undefined)}
       >
         {/* viewer body */}
+        {archiveId !== undefined && (
+          <ArchiveDownloadModal
+            show
+            onDismiss={() => setArchiveId(undefined)}
+            archiveId={archiveId}
+          />
+        )}
         <div className="flex flex-col h-full py-2 px-3 overflow-y-auto hide-scrollbar hover:show-scrollbar">
           {loadingContent ? (
             <div className="h-full w-full justify-items-center mt-5 ">
@@ -435,36 +417,61 @@ export default function FSViewer({ location, setLocation }: FSViewerProps) {
                 )}
                 <Button
                   onClick={() => {
-                    fetchFile(
-                      [...location, content[selection].name],
-                      password,
-                      (blob) => {
-                        // open "save as"-dialog
-                        downloadRef.current!.href =
-                          window.URL.createObjectURL(blob);
-                        downloadRef.current!.download = content[selection].name;
-                        downloadRef.current!.click();
-                      },
-                      () => setPreparingDownload(true),
-                      () => setPreparingDownload(false),
-                      () => {
-                        setPreparingDownload(false);
-                        toast(
-                          `Failed to load file '/${[
-                            ...location,
-                            content[selection].name,
-                          ].join("/")}'`,
-                          <FiAlertCircle className="text-red-500" size={20} />
-                        );
-                      }
-                    );
+                    setPreparingDownload(true);
+
+                    /* Error callback. */
+                    function onError() {
+                      setPreparingDownload(false);
+                      toast(
+                        `Failed to load file '/${[
+                          ...location,
+                          content[selection ?? 0].name,
+                        ].join("/")}'`,
+                        <FiAlertCircle className="text-red-500" size={20} />
+                      );
+                    }
+
+                    fetch(
+                      (process.env.REACT_APP_API_BASE_URL ?? "") +
+                        "/content?" +
+                        new URLSearchParams({
+                          location: encodeURIComponent(
+                            [...location, content[selection].name].join("/")
+                          ),
+                          forStatus: "",
+                        }).toString(),
+                      { credentials: "include" }
+                    )
+                      .then((response) => {
+                        if (response.ok) {
+                          if (response.status === 200)
+                            window.open(
+                              (process.env.REACT_APP_API_BASE_URL ?? "") +
+                                "/content?" +
+                                new URLSearchParams({
+                                  location: encodeURIComponent(
+                                    [...location, content[selection].name].join(
+                                      "/"
+                                    )
+                                  ),
+                                }).toString()
+                            );
+                          else {
+                            response
+                              .json()
+                              .then((json) => setArchiveId(json["id"]));
+                          }
+                          setPreparingDownload(false);
+                        } else onError();
+                      })
+                      .catch((error) => {
+                        onError();
+                        console.error(error);
+                      });
                   }}
                 >
                   Download
                 </Button>
-                <a ref={downloadRef} className="hidden" href="data:">
-                  placeholder
-                </a>
               </div>
             </div>
           </div>

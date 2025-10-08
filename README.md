@@ -38,7 +38,9 @@ If you are done, stop by hitting `Ctrl`+`C`.
   omit to share the current working directory
 * `-p`, `--password`: (optionally) set a password that is required to access the share
 
-  The authentication method is implement via a custom request-header `X-Teilen-Auth` that, if the option is set, is required for any content-related endpoints of the `teilen`-API.
+  If the option is set, authentication is required for any content-related endpoints of the `teilen`-API.
+  The primary method for authentication is the session-cookie (`teilen_session`).
+  An alternative authentication method is implemented via a custom request-header `X-Teilen-Auth`.
 * `--port`: (optionally) changes the port that the application is running on (default is 27183)
 
 ## Update
@@ -55,6 +57,8 @@ The following environment variables can be set to configure `teilen`:
 - `PASSWORD` [DEFAULT null] optional password to access the share (see also the cli-option `-p`, `--password`)
 - `PORT` [DEFAULT 27183] teilen port (see also the cli-option `--port`)
 - `SECRET_KEY` [DEFAULT \<random uuid>] secret key
+- `ARCHIVE_BUILD_CONCURRENCY` [DEFAULT 3] number of concurrent archive built-jobs
+- `TMPDIR` [DEFAULT \<system tmp-directory>] temporary directory where archives are stored
 
 ### Running in dev-mode
 The development setup requires both `python3` and the node package manager `npm` to be installed.
