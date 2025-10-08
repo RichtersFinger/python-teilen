@@ -91,15 +91,35 @@ def create_archive(
     progress["status"] = "completed"
 
 
+def silentfail(callback):
+    """
+    Returns a callable that run the given callback while silently
+    capturing all exceptions.
+    """
+
+    def _(*args, **kwargs):
+        try:
+            callback(*args, **kwargs)
+        # pylint: disable=broad-exception-caught
+        except Exception:
+            pass
+
+    return _
+
+
 def register_api(app: Flask, config: AppConfig):
     """Sets up api endpoints."""
 
     archive_store = {}
     mp_manager = multiprocessing.Manager()  # inter-process communication
-    atexit.register(mp_manager.shutdown)
+    # use silentfail to avoid errors due to gunicorn master + workers
+    # running this function
+    atexit.register(silentfail(mp_manager.shutdown))
 
     tmp_dir = Path(mkdtemp(prefix="teilen-")).resolve()
-    atexit.register(rmtree, tmp_dir)
+    # use silentfail to avoid errors due to gunicorn master + workers
+    # running this function
+    atexit.register(silentfail(rmtree), tmp_dir)
 
     @app.route("/configuration", methods=["GET"])
     def get_configuration():

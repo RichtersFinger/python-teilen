@@ -267,12 +267,29 @@ def run(app=None, config=None):
             def load(self):
                 return self.application
 
+        def post_worker_init(worker):
+            """
+            This removes atexit-handlers of multiprocessing that should
+            not be run in worker-processes.
+
+            See https://github.com/benoitc/gunicorn/issues/1391
+            """
+            try:
+                # pylint: disable=import-outside-toplevel
+                import atexit
+                from multiprocessing.util import _exit_function
+                atexit.unregister(_exit_function)
+            # pylint: disable=broad-exception-caught
+            except Exception:
+                pass
+
         StandaloneApplication(
             app,
             {
                 "bind": f"0.0.0.0:{config.PORT}",
                 "workers": 1,
                 "threads": config.FLASK_THREADS,
+                "post_worker_init": post_worker_init,
             }
             | (config.GUNICORN_OPTIONS or {}),
         ).run()
