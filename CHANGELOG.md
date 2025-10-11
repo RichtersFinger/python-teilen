@@ -8,6 +8,7 @@
 
 ### Added
 
+- added cli-argument '-h/--help'
 - added confirm-dialog when closing the archive-build/download modal before download has started
 
 ### Fixed
