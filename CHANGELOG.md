@@ -1,5 +1,11 @@
 # Changelog
 
+## [?] - 2025-10-11
+
+### Added
+
+- added confirm-dialog when closing the archive-build/download modal before download has started
+
 ## [0.5.0] - 2025-10-09
 
 ### Changed

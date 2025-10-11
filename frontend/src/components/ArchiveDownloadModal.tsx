@@ -30,6 +30,7 @@ export default function ArchiveDownloadModal({
     undefined
   );
   const [error, setError] = useState<string | undefined>(undefined);
+  const [downloadStarted, setDownloadStarted] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -134,13 +135,14 @@ export default function ArchiveDownloadModal({
           {progress?.status === "completed" && (
             <div className="flex items-center justify-center">
               <Button
-                onClick={() =>
+                onClick={() => {
+                  setDownloadStarted(true);
                   window.open(
                     (process.env.REACT_APP_API_BASE_URL ?? "") +
                       "/archive?" +
                       new URLSearchParams({ id: archiveId }).toString()
-                  )
-                }
+                  );
+                }}
               >
                 Download
               </Button>
@@ -148,7 +150,16 @@ export default function ArchiveDownloadModal({
           )}
         </div>
       }
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        if (
+          !downloadStarted &&
+          !window.confirm(
+            "Your download has not been started yet. If you close this modal now, you will need to restart this process."
+          )
+        )
+          return;
+        onDismiss?.();
+      }}
     />
   ) : null;
 }
