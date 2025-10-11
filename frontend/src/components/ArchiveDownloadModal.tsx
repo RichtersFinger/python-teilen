@@ -69,7 +69,7 @@ export default function ArchiveDownloadModal({
   return show ? (
     <Modal
       className="min-w-96 w-1/3"
-      header={<h2 className="text-xl font-bold">Downloading archive</h2>}
+      header={<h2 className="text-xl font-bold">Downloading Archive</h2>}
       body={
         <div className="flex flex-col space-y-2">
           {error !== undefined && (
