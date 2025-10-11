@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.1] - 2025-10-11
+
+### Fixed
+
+- fixed missing conditional for call to DELETE-endpoint for cleanup
+
 ## [0.6.0] - 2025-10-11
 
 ### Changed
