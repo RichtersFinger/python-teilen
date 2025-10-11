@@ -2,6 +2,10 @@
 
 ## [?] - 2025-10-11
 
+### Changed
+
+- added show-animation for modals
+
 ### Added
 
 - added confirm-dialog when closing the archive-build/download modal before download has started
