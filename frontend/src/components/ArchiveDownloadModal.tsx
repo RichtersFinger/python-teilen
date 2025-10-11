@@ -158,6 +158,14 @@ export default function ArchiveDownloadModal({
           )
         )
           return;
+        fetch(
+          (process.env.REACT_APP_API_BASE_URL ?? "") +
+            "/archive?" +
+            new URLSearchParams({
+              id: archiveId,
+            }).toString(),
+          { method: "DELETE", credentials: "include" }
+        );
         onDismiss?.();
       }}
     />

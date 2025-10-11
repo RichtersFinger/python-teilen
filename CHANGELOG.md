@@ -6,6 +6,10 @@
 
 - added confirm-dialog when closing the archive-build/download modal before download has started
 
+### Fixed
+
+- fixed archive-build/download modal not calling the DELETE-endpoint for cleanup
+
 ## [0.5.0] - 2025-10-09
 
 ### Changed
