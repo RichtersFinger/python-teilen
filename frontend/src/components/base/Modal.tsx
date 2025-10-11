@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface ModalProps {
@@ -15,13 +16,23 @@ export default function Modal({
   footer,
   onDismiss,
 }: ModalProps) {
+  const [visible, setVisible] = useState(false);
+
+  // animate show
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return createPortal(
     <div
       className="fixed bg-opacity-50 bg-black top-0 left-0 h-screen w-screen flex items-center justify-center"
       onClick={onDismiss}
     >
       <div
-        className={`flex flex-col p-5 rounded-xl bg-white shadow-lg space-y-2 ${className}`}
+        className={`flex flex-col p-5 rounded-xl bg-white shadow-lg space-y-2 ${className} transition-all duration-150 ease-in ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div>{header}</div>

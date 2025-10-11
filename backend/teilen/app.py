@@ -171,6 +171,26 @@ def app_factory(config: AppConfig) -> Flask:
 
 def parse_cmdline_args(config: AppConfig):
     """Update config using command line arguments."""
+
+    if "-h" in sys.argv or "--help" in sys.argv:
+        print(f"""Open a teilen-share
+Software version: {version("teilen")}
+
+Usage: teilen [options] [path]
+
+Options:
+  -h, --help                        Output this message and exit.
+  -p, --password                    Set a password-requirement for this
+                                    share.
+  --port                            Set a specific port to run on.
+                                    [Default {config.PORT}]
+
+Arguments:
+  path                              path to the directory that is shared
+                                    [Default current working directory]
+""", end="")
+        sys.exit(0)
+
     index = 1
     while True:
         if index >= len(sys.argv):

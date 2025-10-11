@@ -30,6 +30,7 @@ export default function ArchiveDownloadModal({
     undefined
   );
   const [error, setError] = useState<string | undefined>(undefined);
+  const [downloadStarted, setDownloadStarted] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,7 +69,7 @@ export default function ArchiveDownloadModal({
   return show ? (
     <Modal
       className="min-w-96 w-1/3"
-      header={<h2 className="text-xl font-bold">Downloading archive</h2>}
+      header={<h2 className="text-xl font-bold">Downloading Archive</h2>}
       body={
         <div className="flex flex-col space-y-2">
           {error !== undefined && (
@@ -134,13 +135,14 @@ export default function ArchiveDownloadModal({
           {progress?.status === "completed" && (
             <div className="flex items-center justify-center">
               <Button
-                onClick={() =>
+                onClick={() => {
+                  setDownloadStarted(true);
                   window.open(
                     (process.env.REACT_APP_API_BASE_URL ?? "") +
                       "/archive?" +
                       new URLSearchParams({ id: archiveId }).toString()
-                  )
-                }
+                  );
+                }}
               >
                 Download
               </Button>
@@ -148,7 +150,24 @@ export default function ArchiveDownloadModal({
           )}
         </div>
       }
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        if (
+          !downloadStarted &&
+          !window.confirm(
+            "Your download has not been started yet. If you close this modal now, you will need to restart this process."
+          )
+        )
+          return;
+        fetch(
+          (process.env.REACT_APP_API_BASE_URL ?? "") +
+            "/archive?" +
+            new URLSearchParams({
+              id: archiveId,
+            }).toString(),
+          { method: "DELETE", credentials: "include" }
+        );
+        onDismiss?.();
+      }}
     />
   ) : null;
 }
