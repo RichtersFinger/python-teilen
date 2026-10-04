@@ -6,35 +6,9 @@ import socket
 import urllib.request
 from importlib.metadata import version
 
-from flask import (
-    Flask,
-    Response,
-    send_from_directory,
-)
-
+import teilen
+from teilen.webcan import App
 from teilen.config import AppConfig
-from teilen.api import register_api
-
-
-def load_cors(_app: Flask, url: str) -> None:
-    """Loads CORS-extension if required."""
-    try:
-        # pylint: disable=import-outside-toplevel
-        from flask_cors import CORS
-    except ImportError:
-        print(
-            "\033[31mERROR: Missing 'Flask-CORS'-package for dev-server. "
-            + "Install with 'pip install flask-cors'.\033[0m",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    else:
-        print("INFO: Configuring app for CORS.", file=sys.stderr)
-        _ = CORS(
-            _app,
-            supports_credentials=True,
-            resources={"*": {"origins": url}},
-        )
 
 
 def load_callback_url_options() -> list[dict]:
@@ -118,55 +92,16 @@ def print_welcome_message(config: AppConfig) -> None:
     print(delimiter)
 
 
-def app_factory(config: AppConfig) -> Flask:
-    """Returns teilen-Flask app."""
-    if not config.WORKING_DIR.is_dir():
-        print(
-            "\033[1;31mERROR\033[0m: "
-            + f"Requested directory '{config.WORKING_DIR}' does not exist.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    if not config.WORKING_DIR.is_absolute():
-        config.WORKING_DIR = config.WORKING_DIR.resolve()
+def app_factory(config: AppConfig) -> App:
+    """Returns teilen app."""
 
-    # define Flask-app
-    _app = Flask(__name__, static_folder=config.STATIC_PATH)
+    app_ = App()
 
-    _app.config.from_object(config)
+    # TODO: add API endpoints
 
-    # extensions
-    if config.MODE == "dev":
-        load_cors(_app, config.DEV_CORS_FRONTEND_URL)
+    app_.serve_static("/", config.STATIC_PATH)
 
-    # print welcome message
-    print_welcome_message(config)
-
-    @_app.route("/ping", methods=["GET"])
-    def ping():
-        """
-        Returns 'pong'.
-        """
-        return Response("pong", mimetype="text/plain", status=200)
-
-    @_app.route("/version", methods=["GET"])
-    def get_version():
-        """
-        Returns app version.
-        """
-        return Response(version("teilen"), mimetype="text/plain", status=200)
-
-    register_api(_app, config)
-
-    @_app.route("/", defaults={"path": ""})
-    @_app.route("/<path:path>")
-    def get_client(path):
-        """Serve static content."""
-        if path != "":
-            return send_from_directory(config.STATIC_PATH, path)
-        return send_from_directory(config.STATIC_PATH, "index.html")
-
-    return _app
+    return app_
 
 
 def parse_cmdline_args(config: AppConfig):
@@ -235,7 +170,7 @@ Arguments:
 
 
 def run(app=None, config=None):
-    """Run flask-app."""
+    """Run app."""
     # load default config
     if not config:
         config = AppConfig()
@@ -255,61 +190,7 @@ def run(app=None, config=None):
             file=sys.stderr,
         )
 
-    # prioritize gunicorn over werkzeug
-    try:
-        import gunicorn.app.base
-    except ImportError:
-        print(
-            "\033[1;33mWARNING\033[0m: "
-            + "Running without proper wsgi-server.",
-            file=sys.stderr,
-        )
-        app.run(host="0.0.0.0", port=config.PORT)
-    else:
+    print_welcome_message(config)
 
-        class StandaloneApplication(gunicorn.app.base.BaseApplication):
-            """See https://docs.gunicorn.org/en/stable/custom.html"""
-
-            def __init__(self, app_, options=None):
-                self.options = options or {}
-                self.application = app_
-                super().__init__()
-
-            def load_config(self):
-                _config = {
-                    key: value
-                    for key, value in self.options.items()
-                    if key in self.cfg.settings and value is not None
-                }
-                for key, value in _config.items():
-                    self.cfg.set(key.lower(), value)
-
-            def load(self):
-                return self.application
-
-        def post_worker_init(worker):
-            """
-            This removes atexit-handlers of multiprocessing that should
-            not be run in worker-processes.
-
-            See https://github.com/benoitc/gunicorn/issues/1391
-            """
-            try:
-                # pylint: disable=import-outside-toplevel
-                import atexit
-                from multiprocessing.util import _exit_function
-                atexit.unregister(_exit_function)
-            # pylint: disable=broad-exception-caught
-            except Exception:
-                pass
-
-        StandaloneApplication(
-            app,
-            {
-                "bind": f"0.0.0.0:{config.PORT}",
-                "workers": 1,
-                "threads": config.FLASK_THREADS,
-                "post_worker_init": post_worker_init,
-            }
-            | (config.GUNICORN_OPTIONS or {}),
-        ).run()
+    # TODO: run with dev-mode if requested
+    app.run("0.0.0.0", int(config.PORT))
