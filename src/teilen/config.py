@@ -12,9 +12,7 @@ class AppConfig:
     """teilen-backend configuration."""
 
     mode: str = os.environ.get("MODE", "prod")  # "prod" | "dev"
-    port: int = int(
-        os.environ.get("PORT", "27183" if mode == "prod" else "5000")
-    )
+    port: int = int(os.environ.get("PORT", "27183"))
 
     static_path: Path = Path(teilen.__file__).parent / "frontend"
     session_cookie_name: str = field(default_factory=lambda: "teilen_session")
