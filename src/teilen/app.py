@@ -6,7 +6,6 @@ import socket
 import urllib.request
 from importlib.metadata import version
 
-import teilen
 from teilen.webcan import App
 from teilen.config import AppConfig
 
@@ -55,22 +54,22 @@ def print_welcome_message(config: AppConfig) -> None:
     """Prints welcome message to stdout."""
     url_options = load_callback_url_options()
     lines = (
-        (["Running in dev-mode."] if config.MODE == "dev" else [])
+        (["Running in dev-mode."] if config.mode == "dev" else [])
         + [
             "Your teilen-instance will be available shortly.",
             "",
             "The contents of the following directory will be available:",
             (
-                str(config.WORKING_DIR)[:30]
+                str(config.working_dir)[:30]
                 + "..."
-                + str(config.WORKING_DIR)[-30:]
-                if len(str(config.WORKING_DIR)) > 70
-                else str(config.WORKING_DIR)
+                + str(config.working_dir)[-30:]
+                if len(str(config.working_dir)) > 70
+                else str(config.working_dir)
             ),
         ]
         + (
             ["Password protection is active."]
-            if config.PASSWORD is not None
+            if config.password is not None
             else []
         )
         + (
@@ -80,7 +79,7 @@ def print_welcome_message(config: AppConfig) -> None:
         )
         + list(
             map(
-                lambda o: f" * {o['name']}: {o['address']}:{config.PORT}",
+                lambda o: f" * {o['name']}: {o['address']}:{config.port}",
                 url_options,
             )
         )
@@ -99,7 +98,7 @@ def app_factory(config: AppConfig) -> App:
 
     # TODO: add API endpoints
 
-    app_.serve_static("/", config.STATIC_PATH)
+    app_.serve_static("/", config.static_path)
 
     return app_
 
@@ -118,7 +117,7 @@ Options:
   -p, --password                    Set a password-requirement for this
                                     share.
   --port                            Set a specific port to run on.
-                                    [Default {config.PORT}]
+                                    [Default {config.port}]
 
 Arguments:
   path                              path to the directory that is shared
@@ -140,7 +139,7 @@ Arguments:
                     file=sys.stderr,
                 )
                 sys.exit(1)
-            config.PASSWORD = sys.argv[index + 1]
+            config.password = sys.argv[index + 1]
             index += 2
             continue
 
@@ -153,7 +152,7 @@ Arguments:
                     file=sys.stderr,
                 )
                 sys.exit(1)
-            config.PORT = sys.argv[index + 1]
+            config.port = sys.argv[index + 1]
             index += 2
             continue
 
@@ -165,7 +164,7 @@ Arguments:
                 file=sys.stderr,
             )
             sys.exit(1)
-        config.WORKING_DIR = Path(sys.argv[index]).resolve()
+        config.working_dir = Path(sys.argv[index]).resolve()
         index += 1
 
 
@@ -183,14 +182,14 @@ def run(app=None, config=None):
         app = app_factory(config)
 
     # not intended for production due to, e.g., cors
-    if config.MODE != "prod":
+    if config.mode != "prod":
         print(
             "\033[1;33mWARNING\033[0m: "
-            + f"Running in unexpected MODE '{config.Mode}'.",
+            + f"Running in unexpected MODE '{config.mode}'.",
             file=sys.stderr,
         )
 
     print_welcome_message(config)
 
     # TODO: run with dev-mode if requested
-    app.run("0.0.0.0", int(config.PORT))
+    app.run("0.0.0.0", config.port)

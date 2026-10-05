@@ -2,20 +2,26 @@
 
 import os
 from pathlib import Path
+from dataclasses import dataclass, field
 
 import teilen
 
 
+@dataclass(kw_only=True)
 class AppConfig:
     """teilen-backend configuration."""
 
-    MODE = os.environ.get("MODE", "prod")  # "prod" | "dev"
-    PORT = os.environ.get("PORT", "27183" if MODE == "prod" else "5000")
+    mode: str = os.environ.get("MODE", "prod")  # "prod" | "dev"
+    port: int = int(
+        os.environ.get("PORT", "27183" if mode == "prod" else "5000")
+    )
 
-    STATIC_PATH = Path(teilen.__file__).parent / "frontend"
-    SESSION_COOKIE_NAME = "teilen_session"
-    WORKING_DIR = Path(os.environ.get("WORKING_DIR", Path.cwd())).resolve()
-    PASSWORD = os.environ.get("PASSWORD")
-    ARCHIVE_BUILD_CONCURRENCY = int(
+    static_path: Path = Path(teilen.__file__).parent / "frontend"
+    session_cookie_name: str = field(default_factory=lambda: "teilen_session")
+    working_dir: Path = Path(
+        os.environ.get("WORKING_DIR", Path.cwd())
+    ).resolve()
+    password: str | None = os.environ.get("PASSWORD")
+    archive_build_concurrency: int = int(
         os.environ.get("ARCHIVE_BUILD_CONCURRENCY", 3)
     )
