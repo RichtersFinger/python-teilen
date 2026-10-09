@@ -4,8 +4,8 @@ PYTHON := docker run --rm -it -p 5000:27183 -v ./:/teilen -w /teilen ${PYTHON_IM
 shell:
 	${PYTHON} sh
 
-build:
-	${PYTHON} sh -c "pip install --uploaded-prior-to P14D 'build==1.6.1' && rm -r build/ && python -m build --wheel"
+build: clean
+	${PYTHON} sh -c "pip install --uploaded-prior-to P14D 'build==1.6.1' && python -m build --wheel && rm -r build/"
 
 clean:
 	rm -rf __pycache__ **/__pycache__ teilen.egg-info build dist
