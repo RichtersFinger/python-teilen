@@ -107,7 +107,8 @@ def parse_cmdline_args(config: AppConfig):
     """Update config using command line arguments."""
 
     if "-h" in sys.argv or "--help" in sys.argv:
-        print(f"""Open a teilen-share
+        print(
+            f"""Open a teilen-share
 Software version: {version("teilen")}
 
 Usage: teilen [options] [path]
@@ -122,7 +123,9 @@ Options:
 Arguments:
   path                              path to the directory that is shared
                                     [Default current working directory]
-""", end="")
+""",
+            end="",
+        )
         sys.exit(0)
 
     index = 1

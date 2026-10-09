@@ -11,10 +11,14 @@ _dev_config = AppConfig(mode="dev", static_path=Path("src/teilen/frontend"))
 _dev_app = app_factory(_dev_config)
 
 
-if __name__ == "__main__":
+def _dev_app_factory():
     print(f"Running dev server at localhost:{_dev_config.port}")
+    return _dev_app
+
+
+if __name__ == "__main__":
     webcan_run_dev(
-        "dev:_dev_app",
+        _dev_app_factory,
         "0.0.0.0",
         _dev_config.port,
         watch_paths=[Path("src/teilen")],
