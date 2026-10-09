@@ -184,15 +184,15 @@ def run(app=None, config=None):
     if not app:
         app = app_factory(config)
 
-    # not intended for production due to, e.g., cors
+    # not intended for production
     if config.mode != "prod":
         print(
-            "\033[1;33mWARNING\033[0m: "
+            "\033[1;33mERROR\033[0m: "
             + f"Running in unexpected MODE '{config.mode}'.",
             file=sys.stderr,
         )
+        return
 
-    print_welcome_message(config)
+    app.set_on_startup(lambda _: print_welcome_message(config))
 
-    # TODO: run with dev-mode if requested
     app.run("0.0.0.0", config.port)

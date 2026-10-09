@@ -12,6 +12,7 @@ class AppConfig:
     """teilen-backend configuration."""
 
     mode: str = os.environ.get("MODE", "prod")  # "prod" | "dev"
+    bind: str = os.environ.get("BIND", "127.0.0.1")
     port: int = int(os.environ.get("PORT", "27183"))
 
     static_path: Path = Path(teilen.__file__).parent / "frontend"
