@@ -7,6 +7,7 @@ import urllib.request
 from importlib.metadata import version
 
 from teilen.webcan import App
+from teilen import api
 from teilen.config import AppConfig
 
 
@@ -96,7 +97,7 @@ def app_factory(config: AppConfig) -> App:
 
     app_ = App()
 
-    # TODO: add API endpoints
+    app_.register("/api/v1", api.ConfigurationHandler(config))
 
     app_.serve_static("/", config.static_path)
 
