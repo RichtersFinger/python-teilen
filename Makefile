@@ -1,43 +1,11 @@
-SHELL := /bin/bash
-VENV := venv
-SKIP_CLIENT =
-VERSION =
+PYTHON_IMAGE := python:3.14.7-alpine@sha256:4677924bcc0e94505a3270e87cb1601c2af54cd92d021b8dc306618a14333bbe
+PYTHON := docker run --rm -it -p 5000:27183 -v ./:/teilen -w /teilen ${PYTHON_IMAGE}
 
-_:
-	echo "Missing target. See README for details."
+shell:
+	${PYTHON} sh
 
-venv:
-	[ -d "${VENV}" ] || python3 -m venv venv
-
-ifeq ($(SKIP_CLIENT), yes)
-$(info skipping client!)
-build-frontend:
-else
-build-frontend:
-	cd frontend && \
-		npm install && \
-		GENERATE_SOURCEMAP=false npm run build
-endif
-
-build-backend:
-	rm -rf backend/teilen/client
-	cp -r frontend/build backend/teilen/client
-
-build: venv build-frontend build-backend
-	[ "${VERSION}" != "" ] && \
-		VERSIONENV="VERSION=${VERSION}" || \
-		echo "Using default version"
-	source "${VENV}/bin/activate" && \
-		pip install --upgrade pip wheel setuptools && \
-		cd backend && \
-		${VERSIONENV} python3 setup.py sdist bdist_wheel || \
-		python3 setup.py sdist bdist_wheel
-
-publish: venv
-	source "${VENV}/bin/activate" && \
-		pip install --upgrade pip twine && \
-		cd backend && \
-		python3 -m twine upload dist/*
+build: clean
+	${PYTHON} sh -c "pip install --uploaded-prior-to P14D 'build==1.6.1' && python -m build --wheel && rm -r build/"
 
 clean:
-	git clean -dfX
+	rm -rf __pycache__ **/__pycache__ teilen.egg-info build dist
