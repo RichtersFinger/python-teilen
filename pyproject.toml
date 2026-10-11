@@ -1,0 +1,44 @@
+[project]
+name = "teilen"
+version = "1.0.0"
+description = "A simple application to share data via http"
+requires-python = ">=3.10"
+authors = [
+    { name = "SR", email = "srichters@uni-muenster.de" },
+]
+maintainers = [
+  {name = "SR", email = "srichters@uni-muenster.de"}
+]
+dependencies = []
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Communications",
+    "Topic :: Communications :: File Sharing",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+license = "MIT"
+dynamic = ['readme']
+
+[project.urls]
+Source = "https://github.com/RichtersFinger/python-teilen"
+
+[project.scripts]
+teilen = "teilen.app:run"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+readme = { file = "README.md" }
+
+[tool.setuptools.package-data]
+teilen = [
+    "frontend/**/*",
+]
