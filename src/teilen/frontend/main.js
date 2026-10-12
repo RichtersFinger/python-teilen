@@ -18,9 +18,6 @@ async function bootstrap() {
   configuration = await r.json();
 
   main = document.createElement("teilen-main");
-  main.style.flex = 1;
-  main.style.display = "flex";
-  main.style.animation= "fadein 0.1s linear";
   document.getElementById("teilen-main").replaceChildren(main);
 }
 
