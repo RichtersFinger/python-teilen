@@ -22,3 +22,5 @@ class Main extends HTMLElement {
 }
 
 export default Main;
+
+customElements.define("teilen-main", Main);

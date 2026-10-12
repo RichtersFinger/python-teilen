@@ -1,10 +1,7 @@
-import Spinner from "./components/base-spinner.js";
-import Main from "./components/teilen-main.js";
-
 /** Register components */
 
-customElements.define("base-spinner", Spinner);
-customElements.define("teilen-main", Main);
+import "./components/base-spinner.js";
+import "./components/teilen-main.js";
 
 /** App logic */
 

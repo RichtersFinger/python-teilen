@@ -28,3 +28,5 @@ class Spinner extends HTMLElement {
 }
 
 export default Spinner;
+
+customElements.define("base-spinner", Spinner);
