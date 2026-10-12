@@ -1,7 +1,8 @@
-class Main extends HTMLElement {
+import Base from "./base.js";
+
+class Main extends Base {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `
       <div style="margin: 4px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; padding: 5px; box-sizing: border-box;">
         <section style="flex-shrink: 0;">

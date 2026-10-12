@@ -1,7 +1,8 @@
-class Spinner extends HTMLElement {
+import Base from "./base.js";
+
+class Spinner extends Base {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `
       <style>
         .spinner {
