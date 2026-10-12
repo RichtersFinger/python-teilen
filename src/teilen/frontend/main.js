@@ -21,4 +21,4 @@ async function bootstrap() {
   document.getElementById("teilen-main").replaceChildren(main);
 }
 
-window.addEventListener("load", bootstrap);
+bootstrap();
