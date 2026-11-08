@@ -1,5 +1,8 @@
 import Base from "./base.js";
 
+import "./header.js";
+import "./main.js";
+
 class Root extends Base {
   static css = `
     :host {

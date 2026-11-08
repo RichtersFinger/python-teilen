@@ -25,7 +25,6 @@ class Header extends Base {
         <span class="logo-text">teilen</span>
       </div>
     `;
-
   }
 }
 
