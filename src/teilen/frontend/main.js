@@ -5,7 +5,7 @@ import "./components/spinner.js";
 
 /** App logic */
 
-let configuration;
+export let configuration;
 let root;
 
 async function bootstrap() {
