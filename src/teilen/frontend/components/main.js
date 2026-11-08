@@ -56,8 +56,7 @@ class Main extends Base {
     }
   `;
 
-  constructor() {
-    super();
+  render() {
     this.shadowRoot.innerHTML = `
       <div class="main-outer">
         <teilen-modal-about></teilen-modal-about>

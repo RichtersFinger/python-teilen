@@ -15,8 +15,7 @@ class Logo extends Base {
     }
   `;
 
-  constructor() {
-    super();
+  render() {
     this.shadowRoot.innerHTML = `
       <img src="/static/img/favicon2.svg" height="95%" />
       <span class="logo-text">teilen</span>
