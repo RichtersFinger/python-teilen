@@ -20,4 +20,4 @@ class Spinner extends Base {
 
 export default Spinner;
 
-customElements.define("base-spinner", Spinner);
+customElements.define("teilen-spinner", Spinner);

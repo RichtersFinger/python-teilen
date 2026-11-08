@@ -1,6 +1,6 @@
 /** Register components */
 
-import "./components/base-spinner.js";
+import "./components/spinner.js";
 import "./components/teilen-main.js";
 
 /** App logic */
