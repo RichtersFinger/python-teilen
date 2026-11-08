@@ -1,12 +1,14 @@
 /** Register components */
 
+import "./components/root.js";
+import "./components/header.js";
+import "./components/main.js";
 import "./components/spinner.js";
-import "./components/teilen-main.js";
 
 /** App logic */
 
 let configuration;
-let main;
+let root;
 
 async function bootstrap() {
   const r = await fetch("/api/v1/configuration");
@@ -17,8 +19,8 @@ async function bootstrap() {
   }
   configuration = await r.json();
 
-  main = document.createElement("teilen-main");
-  document.getElementById("teilen-main").replaceChildren(main);
+  root = document.createElement("teilen-root");
+  document.getElementById("teilen-root").replaceWith(root);
 }
 
 bootstrap();
