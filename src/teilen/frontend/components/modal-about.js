@@ -11,10 +11,10 @@ class AboutModal extends Base {
     dialog {
       outline: none;
       border: none;
-      border-radius: 8px;
-      padding: 0px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      width: 320px;
+      border-radius: var(--size-2);
+      padding: 0;
+      box-shadow: var(--size-1) var(--size-1) var(--size-3) rgba(0, 0, 0, 0.2);
+      width: var(--size-80);
     }
 
     dialog::backdrop {
@@ -22,7 +22,7 @@ class AboutModal extends Base {
     }
 
     .dialog-content {
-      padding: 16px;
+      padding: var(--size-4);
       display: flex;
       flex-direction: column;
     }
@@ -35,13 +35,13 @@ class AboutModal extends Base {
     }
 
     .title {
-      margin: 0px 0px 10px 0px;
+      margin: 0px 0px var(--size-2) 0px;
     }
 
     .body {
       display: flex;
       flex-direction: column;
-      padding: 16px;
+      padding: var(--size-4);
     }
 
     .footer {
@@ -67,7 +67,7 @@ class AboutModal extends Base {
           <h2 class="title">Software Info</h2>
           <hr />
           <div class="body">
-            <teilen-logo height="60px"></teilen-logo>
+            <teilen-logo height="var(--size-16)"></teilen-logo>
             <p>Software version: ${configuration.version ?? "-"}</p>
           </div>
           <div class="footer">

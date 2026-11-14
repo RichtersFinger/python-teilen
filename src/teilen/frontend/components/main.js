@@ -9,13 +9,13 @@ class Main extends Base {
     }
 
     .main-outer {
-      margin: 4px;
+      margin: var(--size-1);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: var(--size-2);
       flex: 1;
       min-height: 0;
-      padding: 5px;
+      padding: var(--size-1);
       box-sizing: border-box;
     }
 
@@ -25,10 +25,10 @@ class Main extends Base {
 
     .main-toolbar-inner {
       width: 100%;
-      height: 80px;
-      padding: 10px;
+      height: var(--size-20);
+      padding: var(--size-3);
       background-color: rgb(168 168 168);
-      border-radius: 0.75rem;
+      border-radius: var(--size-3);
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -45,9 +45,9 @@ class Main extends Base {
     .main-body-inner {
       width: 100%;
       height: 100%;
-      padding: 10px;
+      padding: var(--size-3);
       background-color: white;
-      border-radius: 0.75rem;
+      border-radius: var(--size-3);
       display: flex;
       flex-direction: row;
       align-items: center;

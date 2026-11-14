@@ -7,12 +7,12 @@ class Button extends Base {
     }
     .outer {
       background-color: var(--gray-0);
-      border-radius: 0.5rem;
+      border-radius: var(--size-2);
       border: 1px solid var(--gray-20);
-      padding: 0.5rem;
+      padding: var(--size-2);
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: var(--size-2);
       transition: background-color 0.2s;
       outline: none;
     }

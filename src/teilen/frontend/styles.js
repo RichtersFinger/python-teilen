@@ -15,6 +15,16 @@ CSS.replaceSync(`
         --gray-90: oklch(25% 0 0);
         --gray-95: oklch(15% 0 0);
         --gray-100: oklch(0% 0 0);
+
+        ${[
+          0.5, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56,
+          64, 80, 96, 128, 160,
+        ]
+          .map(
+            (size) =>
+              `--size-${size.toString().replaceAll(".", "")}: ${0.25 * size}rem`,
+          )
+          .join(";\n")}
     }
 
     @keyframes fadein { from { opacity: 0; translate: 0 8px; } }
