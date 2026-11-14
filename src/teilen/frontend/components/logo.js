@@ -18,7 +18,7 @@ class Logo extends Base {
   `;
   static observedAttributes = [attributeHeight];
 
-  render() {
+  init() {
     this.shadowRoot.innerHTML = `
       <img src="/static/img/favicon2.svg" height="${this.getAttribute(attributeHeight) ?? "95%"}" />
       <span class="logo-text">teilen</span>

@@ -45,7 +45,7 @@ class Main extends Base {
     }
   `;
 
-  render() {
+  init() {
     this.shadowRoot.innerHTML = `
       <div class="outer">
         <section class="toolbar-outer">

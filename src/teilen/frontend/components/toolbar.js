@@ -26,7 +26,7 @@ class Toolbar extends Base {
     }
   `;
 
-  render() {
+  init() {
     this.shadowRoot.innerHTML = `
       <div class="inner">
         <div class="nav-items">

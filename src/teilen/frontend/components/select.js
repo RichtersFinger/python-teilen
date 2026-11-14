@@ -52,7 +52,7 @@ class Select extends Base {
     }
   }
 
-  render() {
+  init() {
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
     this.shadowRoot.innerHTML = `
       <div class="outer ${isDisabled ? "disabled" : ""}">

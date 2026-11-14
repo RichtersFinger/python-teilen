@@ -15,18 +15,13 @@ class Base extends HTMLElement {
       this.shadowRoot.adoptedStyleSheets = [CSS];
     }
 
-    this.render();
+    this.init();
   }
 
-  connectedCallback() {
-    this.render();
-  }
-
-  attributeChangedCallback() {
-    this.render();
-  }
-
-  render() {}
+  /**
+   * Build HTML, set up event handlers, ...
+   */
+  init() {}
 }
 
 export default Base;

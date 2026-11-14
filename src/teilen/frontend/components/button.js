@@ -47,7 +47,7 @@ class Button extends Base {
     }
   }
 
-  render() {
+  init() {
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
     this.shadowRoot.innerHTML = `
       <button class="outer" ${isDisabled}>

@@ -31,7 +31,7 @@ class ReloadIcon extends Base {
     }
   `;
 
-  render() {
+  init() {
     const size = this.getAttribute(attributeSize) || 6;
     this.style.setProperty("--icon-size", `var(--size-${size})`);
     const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;
