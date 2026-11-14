@@ -59,7 +59,6 @@ class Main extends Base {
   render() {
     this.shadowRoot.innerHTML = `
       <div class="main-outer">
-        <teilen-modal-about></teilen-modal-about>
         <section class="main-toolbar-outer">
           <div class="main-toolbar-inner">
             <span>toolbar...</span>
