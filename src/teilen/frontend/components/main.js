@@ -1,5 +1,7 @@
 import Base from "./base.js";
 
+import "./toolbar.js";
+
 class Main extends Base {
   static css = `
     :host {
@@ -8,7 +10,7 @@ class Main extends Base {
       animation: fadein 0.1s linear;
     }
 
-    .main-outer {
+    .outer {
       margin: var(--size-1);
       display: flex;
       flex-direction: column;
@@ -19,30 +21,17 @@ class Main extends Base {
       box-sizing: border-box;
     }
 
-    .main-toolbar-outer {
+    .toolbar-outer {
       flex-shrink: 0;
     }
 
-    .main-toolbar-inner {
-      width: 100%;
-      height: var(--size-20);
-      padding: var(--size-3);
-      background-color: var(--gray-0);
-      border-radius: var(--size-3);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-
-    .main-body-outer {
+    .body-outer {
       display: flex;
       flex: 1;
       min-height: 0;
     }
 
-    .main-body-inner {
+    .body-inner {
       width: 100%;
       height: 100%;
       padding: var(--size-3);
@@ -58,14 +47,12 @@ class Main extends Base {
 
   render() {
     this.shadowRoot.innerHTML = `
-      <div class="main-outer">
-        <section class="main-toolbar-outer">
-          <div class="main-toolbar-inner">
-            <span>toolbar...</span>
-          </div>
+      <div class="outer">
+        <section class="toolbar-outer">
+          <teilen-toolbar></teilen-toolbar>
         </section>
-        <section class="main-body-outer">
-          <div class="main-body-inner">
+        <section class="body-outer">
+          <div class="body-inner">
             <span>content...</span>
           </div>
         </section>

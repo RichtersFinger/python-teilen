@@ -4,10 +4,8 @@ const attributeDisabled = "disabled";
 
 class Button extends Base {
   static css = `
-    :host {
-      display: inline-block;
-    }
     .outer {
+      height: var(--size-10);
       background-color: var(--gray-0);
       border-radius: var(--size-2);
       border: 1px solid var(--gray-20);
@@ -17,6 +15,7 @@ class Button extends Base {
       gap: var(--size-2);
       transition: background-color 0.2s;
       outline: none;
+      font-size: var(--size-4);
     }
     .outer:hover:not(:disabled) {
       background-color: var(--gray-10);
