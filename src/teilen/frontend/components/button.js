@@ -1,5 +1,7 @@
 import Base from "./base.js";
 
+const attributeDisabled = "disabled";
+
 class Button extends Base {
   static css = `
     :host {
@@ -16,21 +18,40 @@ class Button extends Base {
       transition: background-color 0.2s;
       outline: none;
     }
-    .outer:hover {
+    .outer:hover:not(:disabled) {
       background-color: var(--gray-10);
       cursor: pointer;
     }
-    .outer:active {
+    .outer:active:not(:disabled) {
       background-color: var(--gray-20);
     }
-    .outer:focus {
-      outline: 1px solid var(--gray-20);
+    .outer:focus:not(:disabled) {
+      box-shadow: 0px var(--size-1) var(--size-1) rgba(0, 0, 0, 0.2);
+    }
+    .outer:disabled {
+      cursor: not-allowed;
     }
   `;
 
+  static observedAttributes = [attributeDisabled];
+
+  attributeChangedCallback(name, _, newValue) {
+    if (name === attributeDisabled) {
+      const btn = this.shadowRoot.querySelector(".outer");
+      if (btn) {
+        if (newValue !== null) {
+          btn.setAttribute("disabled", "");
+        } else {
+          btn.removeAttribute("disabled");
+        }
+      }
+    }
+  }
+
   render() {
+    const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
     this.shadowRoot.innerHTML = `
-      <button class="outer">
+      <button class="outer" ${isDisabled}>
         <slot name="icon"></slot>
         <slot></slot>
       </button>
