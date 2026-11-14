@@ -1,6 +1,10 @@
 import Base from "./base.js";
 import "./logo.js";
+import "./button.js";
 import { configuration } from "../main.js";
+
+const dialog = "dialog";
+const btnClose = "close-button";
 
 class AboutModal extends Base {
   static css = `
@@ -39,19 +43,26 @@ class AboutModal extends Base {
       flex-direction: column;
       padding: 16px;
     }
+
+    .footer {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: end;
+    }
   `;
 
   open() {
-    this.shadowRoot.getElementById("root").showModal();
+    this.shadowRoot.getElementById(dialog).showModal();
   }
 
   close() {
-    this.shadowRoot.getElementById("root").close();
+    this.shadowRoot.getElementById(dialog).close();
   }
 
   render() {
     this.shadowRoot.innerHTML = `
-      <dialog id="root">
+      <dialog id="${dialog}">
         <div class="dialog-content">
           <h2 class="title">Software Info</h2>
           <hr />
@@ -59,17 +70,23 @@ class AboutModal extends Base {
             <teilen-logo height="60px"></teilen-logo>
             <p>Software version: ${configuration.version ?? "-"}</p>
           </div>
+          <div class="footer">
+            <teilen-button id="${btnClose}">Close</teilen-button>
+          </div>
         </div>
       </dialog>
     `;
 
     // wire dismiss
-    let root = this.shadowRoot.getElementById("root");
-    root.addEventListener("click", (event) => {
-      if (event.target === root) {
+    let dialogEl = this.shadowRoot.getElementById(dialog);
+    dialogEl.addEventListener("click", (event) => {
+      if (event.target === dialogEl) {
         this.close();
       }
     });
+    this.shadowRoot
+      .getElementById(btnClose)
+      .addEventListener("click", () => this.close());
   }
 }
 

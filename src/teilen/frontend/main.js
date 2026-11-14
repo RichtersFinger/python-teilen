@@ -1,7 +1,6 @@
 /** Register components */
 
 import "./components/root.js";
-import "./components/spinner.js";
 
 /** App logic */
 
