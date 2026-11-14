@@ -27,7 +27,7 @@ class Main extends Base {
       width: 100%;
       height: var(--size-20);
       padding: var(--size-3);
-      background-color: rgb(168 168 168);
+      background-color: var(--gray-0);
       border-radius: var(--size-3);
       display: flex;
       flex-direction: row;
@@ -46,7 +46,7 @@ class Main extends Base {
       width: 100%;
       height: 100%;
       padding: var(--size-3);
-      background-color: white;
+      background-color: var(--gray-0);
       border-radius: var(--size-3);
       display: flex;
       flex-direction: row;
