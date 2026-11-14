@@ -1,6 +1,7 @@
 import Base from "./base.js";
 
 import "./toolbar.js";
+import "./body.js";
 
 class Main extends Base {
   static css = `
@@ -28,20 +29,6 @@ class Main extends Base {
     .body-outer {
       display: flex;
       flex: 1;
-      min-height: 0;
-    }
-
-    .body-inner {
-      width: 100%;
-      height: 100%;
-      padding: var(--size-3);
-      background-color: var(--gray-0);
-      border-radius: var(--size-3);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
     }
   `;
 
@@ -52,9 +39,7 @@ class Main extends Base {
           <teilen-toolbar></teilen-toolbar>
         </section>
         <section class="body-outer">
-          <div class="body-inner">
-            <span>content...</span>
-          </div>
+          <teilen-body></teilen-body>
         </section>
       </div>
     `;
