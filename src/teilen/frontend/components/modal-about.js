@@ -7,7 +7,7 @@ const dialog = "dialog";
 const btnClose = "close-button";
 
 class AboutModal extends Base {
-  static css = `
+  static css = css`
     dialog {
       outline: none;
       border: none;
@@ -61,7 +61,7 @@ class AboutModal extends Base {
   }
 
   init() {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <dialog id="${dialog}">
         <div class="dialog-content">
           <h2 class="title">Software Info</h2>

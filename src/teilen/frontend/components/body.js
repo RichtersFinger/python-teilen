@@ -3,7 +3,7 @@ import Base from "./base.js";
 import "./location.js";
 
 class Body extends Base {
-  static css = `
+  static css = css`
     :host {
       display: flex;
       flex: 1;
@@ -22,12 +22,10 @@ class Body extends Base {
   `;
 
   init() {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <div class="outer">
         <teilen-location></teilen-location>
-        <span>
-          content...
-        </span>
+        <span> content... </span>
       </div>
     `;
   }

@@ -3,7 +3,7 @@ import Base from "./base.js";
 import "./icon-home.js";
 
 class Location extends Base {
-  static css = `
+  static css = css`
     .outer {
       user-select: none;
       width: 100%;
@@ -21,12 +21,12 @@ class Location extends Base {
   `;
 
   init() {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <div class="outer">
         <span>
-          <home-icon class="segment" size=6 stroke-width=2.4>
-          </home-icon>
-          / <span class="segment">test</span> / <span class="segment">path</span>
+          <home-icon class="segment" size="6" stroke-width="2.4"></home-icon>
+          / <span class="segment">test</span> /
+          <span class="segment">path</span>
         </span>
       </div>
     `;

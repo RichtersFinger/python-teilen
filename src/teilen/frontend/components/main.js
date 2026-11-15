@@ -4,7 +4,7 @@ import "./toolbar.js";
 import "./body.js";
 
 class Main extends Base {
-  static css = `
+  static css = css`
     :host {
       flex: 1;
       display: flex;
@@ -33,7 +33,7 @@ class Main extends Base {
   `;
 
   init() {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <div class="outer">
         <section class="toolbar-outer">
           <teilen-toolbar></teilen-toolbar>

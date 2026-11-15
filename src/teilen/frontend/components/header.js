@@ -3,14 +3,14 @@ import "./logo.js";
 import "./modal-about.js";
 
 class Header extends Base {
-  static css = `
+  static css = css`
     .logo {
       cursor: pointer;
     }
   `;
 
   init() {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <teilen-modal-about id="about-modal"></teilen-modal-about>
       <teilen-logo id="logo-outer" class="logo"></teilen-logo>
     `;

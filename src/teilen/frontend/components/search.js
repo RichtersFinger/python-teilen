@@ -4,7 +4,7 @@ import "./icon-search.js";
 const attributeDisabled = "disabled";
 
 class Search extends Base {
-  static css = `
+  static css = css`
     .outer {
       height: var(--size-10);
       background-color: var(--gray-0);
@@ -54,8 +54,8 @@ class Search extends Base {
 
   init() {
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
-    this.shadowRoot.innerHTML = `
-      <div class="outer ${isDisabled ? "disabled": ""}">
+    this.shadowRoot.innerHTML = html`
+      <div class="outer ${isDisabled ? "disabled" : ""}">
         <search-icon></search-icon>
         <input id="input" type="text" ${isDisabled} />
       </div>

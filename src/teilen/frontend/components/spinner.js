@@ -1,7 +1,7 @@
 import Base from "./base.js";
 
 class Spinner extends Base {
-  static css = `
+  static css = css`
     .spinner {
       width: 24px;
       aspect-ratio: 1;
@@ -13,7 +13,7 @@ class Spinner extends Base {
   `;
 
   init() {
-    this.shadowRoot.innerHTML = `<div class="spinner"/>`;
+    this.shadowRoot.innerHTML = html`<div class="spinner" />`;
   }
 }
 

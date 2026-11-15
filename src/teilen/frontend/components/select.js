@@ -3,7 +3,7 @@ import Base from "./base.js";
 const attributeDisabled = "disabled";
 
 class Select extends Base {
-  static css = `
+  static css = css`
     .outer {
       height: var(--size-10);
       background-color: var(--gray-0);
@@ -54,7 +54,7 @@ class Select extends Base {
 
   init() {
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <div class="outer ${isDisabled ? "disabled" : ""}">
         <select id="select" ${isDisabled}>
           <option value="">Please select..</option>

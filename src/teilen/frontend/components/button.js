@@ -3,7 +3,7 @@ import Base from "./base.js";
 const attributeDisabled = "disabled";
 
 class Button extends Base {
-  static css = `
+  static css = css`
     .outer {
       height: var(--size-10);
       background-color: var(--gray-0);
@@ -49,7 +49,7 @@ class Button extends Base {
 
   init() {
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <button class="outer" ${isDisabled}>
         <slot name="icon"></slot>
         <slot></slot>

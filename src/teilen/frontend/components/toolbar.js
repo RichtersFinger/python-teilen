@@ -7,7 +7,7 @@ import "./icon-chevron.js";
 import "./icon-reload.js";
 
 class Toolbar extends Base {
-  static css = `
+  static css = css`
     .inner {
       width: 100%;
       height: var(--size-12);
@@ -27,7 +27,7 @@ class Toolbar extends Base {
   `;
 
   init() {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <div class="inner">
         <div class="nav-items">
           <teilen-button disabled>

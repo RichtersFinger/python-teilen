@@ -4,7 +4,7 @@ import "./header.js";
 import "./main.js";
 
 class Root extends Base {
-  static css = `
+  static css = css`
     :host {
       width: 100%;
       height: 100%;
@@ -29,7 +29,7 @@ class Root extends Base {
   `;
 
   init() {
-    this.shadowRoot.innerHTML = `
+    this.shadowRoot.innerHTML = html`
       <header class="teilen-header">
         <teilen-header></teilen-header>
       </header>

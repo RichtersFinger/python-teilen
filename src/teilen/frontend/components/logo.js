@@ -3,7 +3,7 @@ import Base from "./base.js";
 const attributeHeight = "height";
 
 class Logo extends Base {
-  static css = `
+  static css = css`
     :host {
       display: inline-flex;
       align-items: center;
@@ -16,11 +16,13 @@ class Logo extends Base {
       user-select: none;
     }
   `;
-  static observedAttributes = [attributeHeight];
 
   init() {
-    this.shadowRoot.innerHTML = `
-      <img src="/static/img/favicon2.svg" height="${this.getAttribute(attributeHeight) ?? "95%"}" />
+    this.shadowRoot.innerHTML = html`
+      <img
+        src="/static/img/favicon2.svg"
+        height="${this.getAttribute(attributeHeight) ?? "95%"}"
+      />
       <span class="logo-text">teilen</span>
     `;
   }

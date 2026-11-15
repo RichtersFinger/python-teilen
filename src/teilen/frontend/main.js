@@ -1,8 +1,10 @@
-/** Register components */
+import "./globals.js";
+
+/** Register root component */
 
 import "./components/root.js";
 
-/** App logic */
+/** bootstrap App logic */
 
 export let configuration;
 let root;
