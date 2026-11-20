@@ -1,13 +1,11 @@
 import "./globals.js";
+import { configuration } from "./store.js";
 
 /** Register root component */
 
 import "./components/root.js";
 
 /** bootstrap App logic */
-
-export let configuration;
-let root;
 
 async function bootstrap() {
   const r = await fetch("/api/v1/configuration");
@@ -16,9 +14,9 @@ async function bootstrap() {
     console.error(r);
     return;
   }
-  configuration = await r.json();
+  Object.assign(configuration, await r.json());
 
-  root = document.createElement("teilen-root");
+  const root = document.createElement("teilen-root");
   document.getElementById("teilen-root").replaceWith(root);
 }
 
