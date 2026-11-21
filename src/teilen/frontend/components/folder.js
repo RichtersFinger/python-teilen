@@ -1,6 +1,6 @@
 import Base from "./base.js";
 
-import { content } from "../store.js";
+import { content, contentSubscriptions } from "../store.js";
 
 export const attributeSelected = "selected";
 export const attributeContentId = "content-id";
@@ -10,16 +10,18 @@ const label = "label";
 class Folder extends Base {
   static css = css`
     .outer {
+      height: auto;
       display: flex;
       flex-direction: column;
       justify-content: start;
       padding: var(--size-2);
+      border-radius: var(--size-1);
       min-width: 0;
       user-select: none;
       white-space: nowrap;
+      transition: box-shadow 200ms ease-out;
     }
     .selected {
-      border-radius: var(--size-1);
       outline: 1px solid var(--gray-10);
       box-shadow: 0 0 var(--size-4) var(--gray-10);
       white-space: normal;
@@ -41,13 +43,12 @@ class Folder extends Base {
       }
     }
     if (name === attributeContentId) {
-      this.shadowRoot.getElementById(label).innerText =
-        content[newValue]?.name ?? newValue;
+      this.shadowRoot.getElementById(label).innerText = newValue;
     }
   }
 
   init() {
-    const contentId = this.getAttribute(attributeContentId);
+    let contentId = this.getAttribute(attributeContentId);
     this.shadowRoot.innerHTML = html`
       <div
         id="${root}"
@@ -61,6 +62,28 @@ class Folder extends Base {
         </span>
       </div>
     `;
+
+    this.shadowRoot.getElementById(root).addEventListener("click", (e) => {
+      e.stopPropagation();
+      const currentId = this.getAttribute(attributeContentId);
+      if (!e.ctrlKey) contentSubscriptions.clearSelection();
+      contentSubscriptions.updateSelection(currentId, true);
+    });
+  }
+
+  onChange = (selected) => {
+    if (selected) this.setAttribute(attributeSelected, selected);
+    else this.removeAttribute(attributeSelected);
+  };
+
+  connectedCallback() {
+    let contentId = this.getAttribute(attributeContentId);
+    contentSubscriptions.subscribe(contentId, this.onChange);
+  }
+
+  disconnectedCallback() {
+    let contentId = this.getAttribute(attributeContentId);
+    contentSubscriptions.unsubscribe(contentId, this.onChange);
   }
 }
 

@@ -4,7 +4,7 @@ import "./location.js";
 import "./folder.js";
 
 import { attributeContentId as folderAttributeContentId } from "./folder.js";
-import { ContentType, content } from "../store.js";
+import { ContentType, content, contentSubscriptions } from "../store.js";
 
 const inner = "inner";
 
@@ -27,8 +27,10 @@ class Body extends Base {
     }
     .inner {
       width: 100%;
+      height: 100%;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(var(--size-24), 0.1fr));
+      grid-auto-rows: max-content;
       gap: var(--size-3);
     }
   `;
@@ -40,6 +42,10 @@ class Body extends Base {
         <div id="${inner}" class="inner"></div>
       </div>
     `;
+
+    this.shadowRoot.getElementById(inner).addEventListener("click", (e) => {
+      if (!e.ctrlKey) contentSubscriptions.clearSelection();
+    });
   }
 
   connectedCallback() {
