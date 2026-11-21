@@ -52,7 +52,9 @@ class Search extends Base {
     }
   }
 
-  init() {
+  constructor() {
+    super();
+
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
     this.shadowRoot.innerHTML = html`
       <div class="outer ${isDisabled ? "disabled" : ""}">

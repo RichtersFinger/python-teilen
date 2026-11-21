@@ -22,7 +22,9 @@ class HomeIcon extends Base {
     }
   `;
 
-  init() {
+  constructor() {
+    super();
+
     const size = this.getAttribute(attributeSize) || 6;
     this.style.setProperty("--icon-size", `var(--size-${size})`);
     const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;

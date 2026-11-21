@@ -60,7 +60,9 @@ class AboutModal extends Base {
     this.shadowRoot.getElementById(dialog).close();
   }
 
-  init() {
+  constructor() {
+    super();
+
     this.shadowRoot.innerHTML = html`
       <dialog id="${dialog}">
         <div class="dialog-content">

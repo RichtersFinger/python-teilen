@@ -47,7 +47,9 @@ class Folder extends Base {
     }
   }
 
-  init() {
+  constructor() {
+    super();
+
     let contentId = this.getAttribute(attributeContentId);
     this.shadowRoot.innerHTML = html`
       <div

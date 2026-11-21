@@ -35,7 +35,9 @@ class Body extends Base {
     }
   `;
 
-  init() {
+  constructor() {
+    super();
+
     this.shadowRoot.innerHTML = html`
       <div class="outer">
         <teilen-location></teilen-location>

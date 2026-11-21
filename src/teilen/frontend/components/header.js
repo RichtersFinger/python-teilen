@@ -9,7 +9,9 @@ class Header extends Base {
     }
   `;
 
-  init() {
+  constructor() {
+    super();
+
     this.shadowRoot.innerHTML = html`
       <teilen-modal-about id="about-modal"></teilen-modal-about>
       <teilen-logo id="logo-outer" class="logo"></teilen-logo>

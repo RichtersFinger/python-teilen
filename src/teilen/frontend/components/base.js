@@ -14,14 +14,7 @@ class Base extends HTMLElement {
     } else {
       this.shadowRoot.adoptedStyleSheets = [CSS];
     }
-
-    this.init();
   }
-
-  /**
-   * Build HTML, set up event handlers, ...
-   */
-  init() {}
 }
 
 export default Base;

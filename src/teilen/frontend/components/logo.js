@@ -17,7 +17,9 @@ class Logo extends Base {
     }
   `;
 
-  init() {
+  constructor() {
+    super();
+
     this.shadowRoot.innerHTML = html`
       <img
         src="/static/img/favicon2.svg"

@@ -28,7 +28,9 @@ class Root extends Base {
     }
   `;
 
-  init() {
+  constructor() {
+    super();
+
     this.shadowRoot.innerHTML = html`
       <header class="teilen-header">
         <teilen-header></teilen-header>

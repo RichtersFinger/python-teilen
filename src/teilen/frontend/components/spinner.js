@@ -12,7 +12,9 @@ class Spinner extends Base {
     }
   `;
 
-  init() {
+  constructor() {
+    super();
+
     this.shadowRoot.innerHTML = html`<div class="spinner" />`;
   }
 }
