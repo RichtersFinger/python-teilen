@@ -3,10 +3,36 @@ import Base from "./base.js";
 import "./location.js";
 import "./folder.js";
 
-import { attributeContentId as folderAttributeContentId } from "./folder.js";
-import { ContentType, content, contentSubscriptions } from "../store.js";
+import { ItemsActions } from "../data/items.js";
 
 const inner = "inner";
+
+const ContentType = {
+  directory: "directory",
+  file: "file",
+};
+const content = {
+  "folder-1": {
+    id: "folder-1",
+    kind: ContentType.directory,
+  },
+  "folder-2": {
+    id: "folder-2",
+    kind: ContentType.directory,
+  },
+  "folder-3": {
+    id: "folder-3",
+    kind: ContentType.directory,
+  },
+  "file-1": {
+    id: "file-1",
+    kind: ContentType.file,
+  },
+  "file-2": {
+    id: "file-2",
+    kind: ContentType.file,
+  },
+};
 
 class Body extends Base {
   static css = css`
@@ -46,7 +72,7 @@ class Body extends Base {
     `;
 
     this.shadowRoot.getElementById(inner).addEventListener("click", (e) => {
-      if (!e.ctrlKey) contentSubscriptions.clearSelection();
+      if (!e.ctrlKey) ItemsActions.clearSelection();
     });
   }
 
@@ -61,7 +87,7 @@ class Body extends Base {
         let _element;
         if (item.kind === ContentType.directory) {
           _element = document.createElement("teilen-folder");
-          _element.setAttribute(folderAttributeContentId, item.id);
+          _element.itemId = item.id;
         }
         if (item.kind === ContentType.file)
           _element = document.createElement("div");

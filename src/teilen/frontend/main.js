@@ -1,5 +1,5 @@
 import "./globals.js";
-import { configuration } from "./store.js";
+import { configuration } from "./data/configuration.js";
 
 /** Register root component */
 

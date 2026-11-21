@@ -1,7 +1,9 @@
 import Base from "./base.js";
+
 import "./logo.js";
 import "./button.js";
-import { configuration } from "../store.js";
+
+import { configuration } from "../data/configuration.js";
 
 const dialog = "dialog";
 const btnClose = "close-button";

@@ -1,9 +1,8 @@
 import Base from "./base.js";
 
-import { content, contentSubscriptions } from "../store.js";
+import { ItemsActions } from "../data/items.js";
 
-export const attributeSelected = "selected";
-export const attributeContentId = "content-id";
+export const attributeItemId = "item-id";
 const root = "root";
 const label = "label";
 
@@ -19,7 +18,7 @@ class Folder extends Base {
       min-width: 0;
       user-select: none;
       white-space: nowrap;
-      transition: box-shadow 200ms ease-out;
+      transition: box-shadow 100ms ease-out;
     }
     .selected {
       outline: 1px solid var(--gray-10);
@@ -32,17 +31,30 @@ class Folder extends Base {
     }
   `;
 
-  static observedAttributes = [attributeContentId, attributeSelected];
+  get itemId() {
+    return this.getAttribute(attributeItemId);
+  }
+
+  set itemId(id) {
+    this.setAttribute(attributeItemId, id);
+  }
+
+  get selected() {
+    return this.shadowRoot.getElementById(root).classList.contains("selected");
+  }
+
+  select() {
+    this.shadowRoot.getElementById(root).classList.add("selected");
+  }
+
+  unselect() {
+    this.shadowRoot.getElementById(root).classList.remove("selected");
+  }
+
+  static observedAttributes = [attributeItemId];
 
   attributeChangedCallback(name, _, newValue) {
-    if (name === attributeSelected) {
-      if (newValue !== null) {
-        this.shadowRoot.getElementById(root).classList.add("selected");
-      } else {
-        this.shadowRoot.getElementById(root).classList.remove("selected");
-      }
-    }
-    if (name === attributeContentId) {
+    if (name === attributeItemId) {
       this.shadowRoot.getElementById(label).innerText = newValue;
     }
   }
@@ -50,42 +62,40 @@ class Folder extends Base {
   constructor() {
     super();
 
-    let contentId = this.getAttribute(attributeContentId);
+    let itemId = this.getAttribute(attributeItemId);
     this.shadowRoot.innerHTML = html`
-      <div
-        id="${root}"
-        class="outer ${this.getAttribute(attributeSelected) === null
-          ? ""
-          : "selected"}"
-      >
+      <div id="${root}" class="outer">
         <img src="/static/img/folder2.svg" />
-        <span id="${label}" class="name">
-          ${content[contentId] ?? contentId}
-        </span>
+        <span id="${label}" class="name">${itemId}</span>
       </div>
     `;
 
     this.shadowRoot.getElementById(root).addEventListener("click", (e) => {
       e.stopPropagation();
-      const currentId = this.getAttribute(attributeContentId);
-      if (!e.ctrlKey) contentSubscriptions.clearSelection();
-      contentSubscriptions.updateSelection(currentId, true);
+      const itemId = this.getAttribute(attributeItemId);
+      if (!e.ctrlKey) ItemsActions.clearSelection();
+      ItemsActions.selectItem(itemId);
     });
   }
 
-  onChange = (selected) => {
-    if (selected) this.setAttribute(attributeSelected, selected);
-    else this.removeAttribute(attributeSelected);
-  };
-
   connectedCallback() {
-    let contentId = this.getAttribute(attributeContentId);
-    contentSubscriptions.subscribe(contentId, this.onChange);
+    let itemId = this.getAttribute(attributeItemId);
+    if (!itemId) {
+      console.error("Missing item ID during connect.");
+      return;
+    }
+
+    ItemsActions.addItem(itemId, this);
   }
 
   disconnectedCallback() {
-    let contentId = this.getAttribute(attributeContentId);
-    contentSubscriptions.unsubscribe(contentId, this.onChange);
+    let itemId = this.getAttribute(attributeItemId);
+    if (!itemId) {
+      console.error("Missing item ID during disconnect.");
+      return;
+    }
+
+    ItemsActions.removeItem(itemId, this);
   }
 }
 
