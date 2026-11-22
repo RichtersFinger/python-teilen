@@ -3,9 +3,9 @@ export const ItemsStore = {};
 export const ItemsSubscriptions = {
   subscribers: [],
   notify: (id) => {
-    ItemsSubscriptions.subscribers.forEach(
-      (s) => (id === undefined || s.id === id) && s.callback(id),
-    );
+    ItemsSubscriptions.subscribers.forEach((s) => {
+      if (id === undefined || s.id === undefined || s.id === id) s.callback(id);
+    });
   },
   subscribe: (id, callback) => {
     ItemsSubscriptions.subscribers.push({ id, callback });

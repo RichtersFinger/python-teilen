@@ -1,12 +1,13 @@
 import Base from "./base.js";
 
 import "./location.js";
+import "./selection-indicator.js";
 import "./item.js";
 
 import { Kind } from "./item.js";
 import { ItemsActions } from "../data/items.js";
 
-const inner = "inner";
+const innerBottom = "innerBottom";
 
 const content = {
   "folder-1": {
@@ -52,6 +53,13 @@ class Body extends Base {
       align-items: start;
       justify-content: start;
     }
+    .inner-top {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
     .inner {
       width: 100%;
       height: 100%;
@@ -67,22 +75,23 @@ class Body extends Base {
 
     this.shadowRoot.innerHTML = html`
       <div class="outer">
-        <teilen-location></teilen-location>
-        <div id="${inner}" class="inner"></div>
+        <div class="inner-top">
+          <teilen-location></teilen-location>
+          <teilen-selection-indicator></teilen-selection-indicator>
+        </div>
+        <div id="${innerBottom}" class="inner"></div>
       </div>
     `;
 
-    this.shadowRoot.getElementById(inner).addEventListener("click", (e) => {
-      if (!e.ctrlKey) ItemsActions.clearSelection();
-    });
-  }
-
-  connectedCallback() {
-    this.updateBody();
+    this.shadowRoot
+      .getElementById(innerBottom)
+      .addEventListener("click", (e) => {
+        if (!e.ctrlKey) ItemsActions.clearSelection();
+      });
   }
 
   updateBody() {
-    const innerElement = this.shadowRoot.getElementById(inner);
+    const innerElement = this.shadowRoot.getElementById(innerBottom);
     const children = Object.values(content)
       .map((item) => {
         let _element;
@@ -96,6 +105,10 @@ class Body extends Base {
       .filter(Boolean);
 
     innerElement.replaceChildren(...children);
+  }
+
+  connectedCallback() {
+    this.updateBody();
   }
 }
 
