@@ -60,9 +60,12 @@ class Body extends Base {
       align-items: center;
       justify-content: space-between;
     }
-    .inner {
+    .inner-bottom {
       width: 100%;
       height: 100%;
+      max-height: 80vh;
+      padding: var(--size-1);
+      overflow-y: auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(var(--size-24), 0.1fr));
       grid-auto-rows: max-content;
@@ -79,7 +82,7 @@ class Body extends Base {
           <teilen-location></teilen-location>
           <teilen-selection-indicator></teilen-selection-indicator>
         </div>
-        <div id="${innerBottom}" class="inner"></div>
+        <div id="${innerBottom}" class="inner-bottom"></div>
       </div>
     `;
 
