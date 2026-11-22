@@ -98,6 +98,9 @@ class Body extends Base {
         _element = document.createElement("teilen-item");
         _element.id = item.id;
         _element.kind = item.kind;
+        _element.title = `${item.kind[0].toUpperCase() + item.kind.slice(1)}
+Changed at: 2024-01-01
+Size: 5KB`;
         if (!_element) return undefined;
 
         return _element;
