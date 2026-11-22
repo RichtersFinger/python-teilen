@@ -1,36 +1,37 @@
 import Base from "./base.js";
 
 import "./location.js";
-import "./folder.js";
+import "./item.js";
 
+import { Kind } from "./item.js";
 import { ItemsActions } from "../data/items.js";
 
 const inner = "inner";
 
-const ContentType = {
-  directory: "directory",
-  file: "file",
-};
 const content = {
   "folder-1": {
     id: "folder-1",
-    kind: ContentType.directory,
+    kind: Kind.directory.id,
   },
   "folder-2": {
     id: "folder-2",
-    kind: ContentType.directory,
+    kind: Kind.directory.id,
   },
   "folder-3": {
     id: "folder-3",
-    kind: ContentType.directory,
+    kind: Kind.directory.id,
   },
   "file-1": {
     id: "file-1",
-    kind: ContentType.file,
+    kind: Kind.file.id,
   },
   "file-2": {
     id: "file-2",
-    kind: ContentType.file,
+    kind: Kind.file.id,
+  },
+  "link-4": {
+    id: "link-4",
+    kind: "unknown",
   },
 };
 
@@ -85,12 +86,9 @@ class Body extends Base {
     const children = Object.values(content)
       .map((item) => {
         let _element;
-        if (item.kind === ContentType.directory) {
-          _element = document.createElement("teilen-folder");
-          _element.itemId = item.id;
-        }
-        if (item.kind === ContentType.file)
-          _element = document.createElement("div");
+        _element = document.createElement("teilen-item");
+        _element.id = item.id;
+        _element.kind = item.kind;
         if (!_element) return undefined;
 
         return _element;

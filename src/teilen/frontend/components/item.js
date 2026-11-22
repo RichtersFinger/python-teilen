@@ -2,11 +2,25 @@ import Base from "./base.js";
 
 import { ItemsActions } from "../data/items.js";
 
-export const attributeItemId = "item-id";
+export const Kind = {
+  directory: {
+    id: "directory",
+    img: "/static/img/folder2.svg",
+  },
+  file: {
+    id: "file",
+    img: "/static/img/file2.svg",
+  },
+};
+
+export const attributeId = "item-id";
+export const attributeKind = "kind";
+
 const root = "root";
+const img = "img";
 const label = "label";
 
-class Folder extends Base {
+class Item extends Base {
   static css = css`
     .outer {
       height: auto;
@@ -31,12 +45,28 @@ class Folder extends Base {
     }
   `;
 
-  get itemId() {
-    return this.getAttribute(attributeItemId);
+  get id() {
+    return this.getAttribute(attributeId);
   }
 
-  set itemId(id) {
-    this.setAttribute(attributeItemId, id);
+  set id(value) {
+    if (this.getAttribute(attributeId) !== null) {
+      console.error("Cannot change item-id");
+      return;
+    }
+    this.setAttribute(attributeId, value);
+  }
+
+  get kind() {
+    return this.getAttribute(attributeKind);
+  }
+
+  set kind(value) {
+    if (this.getAttribute(attributeKind) !== null) {
+      console.error("Cannot change item-kind");
+      return;
+    }
+    this.setAttribute(attributeKind, value);
   }
 
   get selected() {
@@ -51,35 +81,39 @@ class Folder extends Base {
     this.shadowRoot.getElementById(root).classList.remove("selected");
   }
 
-  static observedAttributes = [attributeItemId];
+  static observedAttributes = [attributeId, attributeKind];
 
   attributeChangedCallback(name, _, newValue) {
-    if (name === attributeItemId) {
+    if (name === attributeId) {
       this.shadowRoot.getElementById(label).innerText = newValue;
+    }
+    if (name === attributeKind) {
+      this.shadowRoot.getElementById(img).src = Kind[newValue]?.img ?? "/static/img/placeholder.svg";
     }
   }
 
   constructor() {
     super();
 
-    let itemId = this.getAttribute(attributeItemId);
+    let id = this.getAttribute(attributeId);
+    let kind = this.getAttribute(attributeKind);
     this.shadowRoot.innerHTML = html`
       <div id="${root}" class="outer">
-        <img src="/static/img/folder2.svg" />
-        <span id="${label}" class="name">${itemId}</span>
+        <img id="${img}" src="${Kind[kind]?.img ?? "/static/img/placeholder.svg"}" />
+        <span id="${label}" class="name">${id}</span>
       </div>
     `;
 
     this.shadowRoot.getElementById(root).addEventListener("click", (e) => {
       e.stopPropagation();
-      const itemId = this.getAttribute(attributeItemId);
+      const itemId = this.getAttribute(attributeId);
       if (!e.ctrlKey) ItemsActions.clearSelection();
       ItemsActions.selectItem(itemId);
     });
   }
 
   connectedCallback() {
-    let itemId = this.getAttribute(attributeItemId);
+    let itemId = this.getAttribute(attributeId);
     if (!itemId) {
       console.error("Missing item ID during connect.");
       return;
@@ -89,7 +123,7 @@ class Folder extends Base {
   }
 
   disconnectedCallback() {
-    let itemId = this.getAttribute(attributeItemId);
+    let itemId = this.getAttribute(attributeId);
     if (!itemId) {
       console.error("Missing item ID during disconnect.");
       return;
@@ -99,6 +133,6 @@ class Folder extends Base {
   }
 }
 
-export default Folder;
+export default Item;
 
-customElements.define("teilen-folder", Folder);
+customElements.define("teilen-item", Item);
