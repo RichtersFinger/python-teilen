@@ -76,6 +76,16 @@ class Item extends Base {
           LocationActions.navigateRelative(this.id),
         );
     }
+    if (value === Kind.file.id) {
+      this.shadowRoot
+        .getElementById(root)
+        .addEventListener("dblclick", () =>
+          window.open(
+            `/files/${([...LocationStore.location, this.id].join("/"))}`,
+            "_blank",
+          ),
+        );
+    }
   }
 
   get selected() {

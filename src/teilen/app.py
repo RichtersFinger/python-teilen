@@ -99,6 +99,7 @@ def app_factory(config: AppConfig) -> App:
 
     app_.register("/api/v1", api.ConfigurationHandler(config))
     app_.register("/api/v1", api.ItemsHandler(config))
+    app_.serve_static("/files", config.working_dir)
 
     app_.serve_static("/static", config.static_path)
     app_.fallback(api.FallbackHandler(config.static_path / "index.html"))
