@@ -1,12 +1,13 @@
 import Base from "./base.js";
 import { formatTooltip } from "../lib.js";
 
-import "./location.js";
+import "./location-indicator.js";
 import "./selection-indicator.js";
 import "./spinner.js";
 import "./item.js";
 
 import { ItemsActions } from "../data/items.js";
+import { LocationStore, LocationSubscriptions } from "../data/location.js";
 
 const innerBottom = "innerBottom";
 
@@ -53,7 +54,7 @@ class Body extends Base {
     this.shadowRoot.innerHTML = html`
       <div class="outer">
         <div class="inner-top">
-          <teilen-location></teilen-location>
+          <teilen-location-indicator></teilen-location-indicator>
           <teilen-selection-indicator></teilen-selection-indicator>
         </div>
         <div id="${innerBottom}" class="inner-bottom">
@@ -69,8 +70,12 @@ class Body extends Base {
       });
   }
 
+  onLocationChange = () => {
+    this.updateBody();
+  };
+
   async updateBody() {
-    const location = "";
+    const location = LocationStore.location.join("/");
     const response = await fetch(
       "/api/v1/items?" +
         new URLSearchParams({ path: encodeURIComponent(location) }),
@@ -102,6 +107,11 @@ class Body extends Base {
 
   connectedCallback() {
     this.updateBody();
+    LocationSubscriptions.subscribe(this.onLocationChange);
+  }
+
+  disconnectedCallback() {
+    LocationSubscriptions.unsubscribe(this.onLocationChange);
   }
 }
 

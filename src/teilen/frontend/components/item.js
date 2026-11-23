@@ -1,6 +1,7 @@
 import Base from "./base.js";
 
 import { ItemsActions } from "../data/items.js";
+import { LocationStore, LocationActions } from "../data/location.js";
 
 export const Kind = {
   directory: {
@@ -67,6 +68,14 @@ class Item extends Base {
       return;
     }
     this.setAttribute(attributeKind, value);
+
+    if (value === Kind.directory.id) {
+      this.shadowRoot
+        .getElementById(root)
+        .addEventListener("dblclick", () =>
+          LocationActions.navigateRelative(this.id),
+        );
+    }
   }
 
   get selected() {
@@ -88,7 +97,8 @@ class Item extends Base {
       this.shadowRoot.getElementById(label).innerText = newValue;
     }
     if (name === attributeKind) {
-      this.shadowRoot.getElementById(img).src = Kind[newValue]?.img ?? "/static/img/placeholder.svg";
+      this.shadowRoot.getElementById(img).src =
+        Kind[newValue]?.img ?? "/static/img/placeholder.svg";
     }
   }
 
@@ -99,7 +109,10 @@ class Item extends Base {
     let kind = this.getAttribute(attributeKind);
     this.shadowRoot.innerHTML = html`
       <div id="${root}" class="outer">
-        <img id="${img}" src="${Kind[kind]?.img ?? "/static/img/placeholder.svg"}" />
+        <img
+          id="${img}"
+          src="${Kind[kind]?.img ?? "/static/img/placeholder.svg"}"
+        />
         <span id="${label}" class="name">${id}</span>
       </div>
     `;
