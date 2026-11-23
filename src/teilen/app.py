@@ -99,6 +99,9 @@ def app_factory(config: AppConfig) -> App:
 
     app_.register("/api/v1", api.ConfigurationHandler(config))
     app_.register("/api/v1", api.ItemsHandler(config))
+    archive_handler = api.ArchiveHandler(config)
+    archive_handler.plan_cleanup()
+    app_.register("/api/v1", archive_handler)
     app_.serve_static("/files", config.working_dir)
 
     app_.serve_static("/static", config.static_path)

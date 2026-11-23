@@ -21,6 +21,4 @@ class AppConfig:
         os.environ.get("WORKING_DIR", Path.cwd())
     ).resolve()
     password: str | None = os.environ.get("PASSWORD")
-    archive_build_concurrency: int = int(
-        os.environ.get("ARCHIVE_BUILD_CONCURRENCY", 3)
-    )
+    archives_ttl: float = float(os.environ.get("ARCHIVES_TTL", 600))

@@ -5,6 +5,13 @@ from urllib.parse import unquote
 from importlib.metadata import version
 from pathlib import Path
 from datetime import datetime
+from time import sleep, time
+from dataclasses import dataclass, field
+import threading
+from uuid import uuid4
+import zipfile
+from tempfile import mkdtemp
+import atexit
 
 from teilen.webcan import Handler, StaticHandler, Response, Request, HTTPError
 from teilen.config import AppConfig
@@ -117,3 +124,204 @@ class ItemsHandler(Handler):
                 },
             }
         )
+
+
+class ArchiveHandler(Handler):
+    """Archive API-handler."""
+
+    path = "/archives"
+
+    @dataclass
+    class ArchiveJob:
+        """Record class for archival job tracking."""
+
+        targets: list[Path]
+        destination: Path
+        id_: str = field(default_factory=lambda: str(uuid4()))
+        size: int = 0
+        progress: int = 0
+        completed: bool = False
+        success: bool | None = None
+        completed_at: float | None = None
+
+        @property
+        def json(self):
+            """Returns JSON-serializable job metadata."""
+            return {
+                "id": self.id_,
+                "totalFiles": len(self.targets),
+                "size": self.size,
+                "progress": self.progress,
+                "completed": self.completed,
+            }
+
+    def __init__(self, config: AppConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.config = config
+        self._jobs: dict[str, self.ArchiveJob] = {}
+        self._jobs_lock = threading.RLock()
+
+    def plan_cleanup(self):
+        """Registers exit-handlers and starts a cleanup routine at runtime."""
+
+        def _cleanup(purge: bool = False):
+            now = time()
+            for job in filter(
+                lambda j: purge
+                or (
+                    j.completed_at is not None
+                    and now > j.completed_at + self.config.archives_ttl
+                ),
+                list(self._jobs.values()),
+            ):
+                print(
+                    f"[{datetime.now().isoformat()} - {job.id_}] Cleaning up '{job.destination}'.",
+                    file=sys.stderr,
+                )
+                job.destination.unlink(missing_ok=True)
+                job.destination.parent.rmdir()
+                with self._jobs_lock:
+                    del self._jobs[job.id_]
+
+        def _cleanup_loop():
+            while True:
+                sleep(self.config.archives_ttl)
+                if len(self._jobs) == 0:
+                    continue
+                print(
+                    f"[{datetime.now().isoformat()}] Running cleanup.",
+                    file=sys.stderr,
+                )
+                _cleanup()
+                print(
+                    f"[{datetime.now().isoformat()}] Cleanup completed.",
+                    file=sys.stderr,
+                )
+
+        atexit.register(_cleanup, True)
+        threading.Thread(target=_cleanup_loop, daemon=True).start()
+
+        print(
+            f"[{datetime.now().isoformat()}] Cleanup has been planned.",
+            file=sys.stderr,
+        )
+
+    def create_archive(self, job: ArchiveJob, location: Path):
+        """
+        Builds an archive. Progress updates are written to the given job
+        object.
+
+        :param job: ArchiveJob description
+        :param location: base path for archive contents
+        """
+        print(
+            f"[{datetime.now().isoformat()} - {job.id_}] Creating archive in '{job.destination}'.",
+            file=sys.stderr,
+        )
+
+        try:
+            with zipfile.ZipFile(
+                job.destination, "w", zipfile.ZIP_STORED
+            ) as archive:
+                for t in job.targets:
+                    archive.write(
+                        t,
+                        t.resolve().relative_to(location.resolve()),
+                    )
+                    job.size = job.destination.stat().st_size
+                    job.progress += 1
+
+            job.success = True
+            print(
+                f"[{datetime.now().isoformat()} - {job.id_}] Building archive successful.",
+                file=sys.stderr,
+            )
+        except Exception as e:
+            job.success = False
+            print(
+                f"[{datetime.now().isoformat()} - {job.id_}] Failed to build archive: {e}.",
+                file=sys.stderr,
+            )
+        finally:
+            job.completed = True
+            job.completed_at = time()
+
+    def get(self, request: Request):
+        """
+        Returns either archive file or archive job status if the query argument
+        "status" is provided. Archive (job) id is read from the "id" query
+        argument.
+        """
+        try:
+            job_id = request.query_params["id"][0]
+        except (KeyError, IndexError):
+            return Response.text("Missing archive/job id.", 400)
+        check_status = "status" in request.query_params
+
+        if job_id not in self._jobs:
+            return Response.text("Unknown or expired archive/job.", 404)
+
+        if check_status:
+            return Response.json(self._jobs[job_id].json)
+
+        if not self._jobs[job_id].destination.is_file():
+            return Response.text("Unknown or expired archive/job.", 404)
+
+        return Response.file(self._jobs[job_id].destination)
+
+    def post(self, request: Request):
+        """
+        Create archiving-job and return job's ID.
+
+        Read targets from JSON body
+        - field 'targets' (array of paths)
+        - location (relative path base in archive)
+        """
+        request_json = request.json()
+        location = (
+            self.config.working_dir / request_json.get("location", "")
+        ).resolve()
+        if not location.is_relative_to(self.config.working_dir):
+            return Response.text("Not allowed.", 403)
+
+        raw_targets = list(
+            map(
+                lambda t: (self.config.working_dir / t).resolve(),
+                request_json.get("targets", []),
+            )
+        )
+        if len(raw_targets) == 0:
+            return Response.text("Missing target.", 400)
+
+        # resolve, collect and validate individual files from raw targets
+        targets = []
+        for target in raw_targets:
+            if not target.is_relative_to(self.config.working_dir):
+                print(
+                    f"Prevented path traversal attempt targeting '{target}'.",
+                    file=sys.stderr,
+                )
+                return Response.text("Not allowed.", 403)
+            if not target.exists():
+                return Response.text("Does not exist.", 404)
+
+            if target.is_file() and not target.is_symlink():
+                targets.append(target)
+            if target.is_dir() and not target.is_symlink():
+                targets.extend(
+                    filter(
+                        lambda p: p.is_file() and not p.is_symlink(),
+                        target.glob("**/*"),
+                    )
+                )
+
+        tmp_dir = Path(mkdtemp(prefix="teilen-")).resolve()
+        job = self.ArchiveJob(
+            targets, (tmp_dir / "archive").with_suffix(".zip")
+        )
+        with self._jobs_lock:
+            self._jobs[job.id_] = job
+        threading.Thread(
+            target=self.create_archive, args=(job, location), daemon=True
+        ).start()
+        return Response.json({"id": job.id_})
