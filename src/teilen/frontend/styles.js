@@ -22,7 +22,8 @@ CSS.replaceSync(`
         ]
           .map(
             (size) =>
-              `--size-${size.toString().replaceAll(".", "")}: ${0.25 * size}rem`,
+              `--size-${size.toString().replaceAll(".", "")}: ${0.25 * size}rem;
+              ---size-${size.toString().replaceAll(".", "")}: -${0.25 * size}rem`,
           )
           .join(";\n")}
     }
