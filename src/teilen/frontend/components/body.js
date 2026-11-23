@@ -1,40 +1,14 @@
 import Base from "./base.js";
+import { formatTooltip } from "../lib.js";
 
 import "./location.js";
 import "./selection-indicator.js";
+import "./spinner.js";
 import "./item.js";
 
-import { Kind } from "./item.js";
 import { ItemsActions } from "../data/items.js";
 
 const innerBottom = "innerBottom";
-
-const content = {
-  "folder-1": {
-    id: "folder-1",
-    kind: Kind.directory.id,
-  },
-  "folder-2": {
-    id: "folder-2",
-    kind: Kind.directory.id,
-  },
-  "folder-3": {
-    id: "folder-3",
-    kind: Kind.directory.id,
-  },
-  "file-1": {
-    id: "file-1",
-    kind: Kind.file.id,
-  },
-  "file-2": {
-    id: "file-2",
-    kind: Kind.file.id,
-  },
-  "link-4": {
-    id: "link-4",
-    kind: "unknown",
-  },
-};
 
 class Body extends Base {
   static css = css`
@@ -82,7 +56,9 @@ class Body extends Base {
           <teilen-location></teilen-location>
           <teilen-selection-indicator></teilen-selection-indicator>
         </div>
-        <div id="${innerBottom}" class="inner-bottom"></div>
+        <div id="${innerBottom}" class="inner-bottom">
+          <teilen-spinner></teilen-spinner>
+        </div>
       </div>
     `;
 
@@ -93,17 +69,28 @@ class Body extends Base {
       });
   }
 
-  updateBody() {
+  async updateBody() {
+    const location = "";
+    const response = await fetch(
+      "/api/v1/items?" +
+        new URLSearchParams({ path: encodeURIComponent(location) }),
+    );
+    if (!response.ok) {
+      alert(`Failed to look up location '${location}'`);
+      return;
+    }
+    const data = await response.json();
+
+    // TODO: sort items...
+
     const innerElement = this.shadowRoot.getElementById(innerBottom);
-    const children = Object.values(content)
+    const children = data.data.items
       .map((item) => {
         let _element;
         _element = document.createElement("teilen-item");
-        _element.id = item.id;
+        _element.id = item.name;
         _element.kind = item.kind;
-        _element.title = `${item.kind[0].toUpperCase() + item.kind.slice(1)}
-Changed at: 2024-01-01
-Size: 5KB`;
+        _element.title = formatTooltip(item);
         if (!_element) return undefined;
 
         return _element;
