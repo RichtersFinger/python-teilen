@@ -7,5 +7,7 @@ services:
       - "5000:27183"
     volumes:
       - "./:/teilen"
+    environment:
+      WORKING_DIR: "/teilen"
     working_dir: "/teilen"
     command: [ "sh", "-c", "pip install --uploaded-prior-to P14D -e '.[dev]' && python app.dev.py" ]
