@@ -19,6 +19,7 @@ class Body extends Base {
     }
     .outer {
       width: 100%;
+      max-height: 82vh;
       padding: var(--size-3);
       background-color: var(--gray-0);
       border-radius: var(--size-3);
@@ -38,7 +39,6 @@ class Body extends Base {
     .inner-bottom {
       width: 100%;
       height: 100%;
-      max-height: 80vh;
       padding: var(--size-1);
       overflow-y: auto;
       display: grid;
