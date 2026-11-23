@@ -6,9 +6,10 @@ import "./button.js";
 import "./icon-chevron.js";
 import "./icon-reload.js";
 
-import { ToolbarSingleton } from "../singletons.js";
+import { BodySingleton, ToolbarSingleton } from "../singletons.js";
 
 const search = "search";
+const reload = "reload";
 const order = "order";
 
 class Toolbar extends Base {
@@ -39,13 +40,17 @@ class Toolbar extends Base {
       <div class="inner">
         <div class="nav-items">
           <teilen-search id="${search}"></teilen-search>
-          <teilen-button>
+          <teilen-button id="${reload}">
             <reload-icon slot="icon" size="5"></reload-icon>
           </teilen-button>
         </div>
         <teilen-select id="${order}" disabled></teilen-select>
       </div>
     `;
+
+    this.shadowRoot
+      .getElementById(reload)
+      .addEventListener("click", () => BodySingleton.body.updateBody());
   }
 
   connectedCallback() {
