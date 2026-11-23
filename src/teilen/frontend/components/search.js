@@ -1,7 +1,13 @@
 import Base from "./base.js";
+
 import "./icon-search.js";
 
+import { BodySingleton } from "../singletons.js";
+import { LocationSubscriptions } from "../data/location.js";
+
 const attributeDisabled = "disabled";
+
+const input = "input";
 
 class Search extends Base {
   static css = css`
@@ -59,9 +65,29 @@ class Search extends Base {
     this.shadowRoot.innerHTML = html`
       <div class="outer ${isDisabled ? "disabled" : ""}">
         <search-icon></search-icon>
-        <input id="input" type="text" ${isDisabled} />
+        <input id="${input}" type="text" ${isDisabled} />
       </div>
     `;
+
+    this.shadowRoot
+      .getElementById(input)
+      .addEventListener("input", () => BodySingleton.body?.renderItems());
+  }
+
+  get value() {
+    return this.shadowRoot.getElementById(input).value;
+  }
+
+  onLocationChange = () => {
+    this.shadowRoot.getElementById(input).value = "";
+  };
+
+  connectedCallback() {
+    LocationSubscriptions.subscribe(this.onLocationChange);
+  }
+
+  disconnectedCallback() {
+    LocationSubscriptions.unsubscribe(this.onLocationChange);
   }
 }
 

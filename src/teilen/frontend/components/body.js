@@ -8,6 +8,7 @@ import "./item.js";
 
 import { ItemsActions } from "../data/items.js";
 import { LocationStore, LocationSubscriptions } from "../data/location.js";
+import { BodySingleton, ToolbarSingleton } from "../singletons.js";
 
 const innerBottom = "innerBottom";
 
@@ -68,6 +69,8 @@ class Body extends Base {
       .addEventListener("click", (e) => {
         if (!e.ctrlKey) ItemsActions.clearSelection();
       });
+
+    this.items = undefined;
   }
 
   onLocationChange = () => {
@@ -84,12 +87,17 @@ class Body extends Base {
       alert(`Failed to look up location '${location}'`);
       return;
     }
-    const data = await response.json();
+    this.items = (await response.json()).data.items;
 
-    // TODO: sort items...
+    this.renderItems();
+  }
 
+  renderItems() {
     const innerElement = this.shadowRoot.getElementById(innerBottom);
-    const children = data.data.items
+    const children = this.items
+      .filter((item) =>
+        item.name.toLowerCase().includes(ToolbarSingleton.search.value.trim()),
+      )
       .map((item) => {
         let _element;
         _element = document.createElement("teilen-item");
@@ -108,10 +116,12 @@ class Body extends Base {
   connectedCallback() {
     this.updateBody();
     LocationSubscriptions.subscribe(this.onLocationChange);
+    BodySingleton.body = this;
   }
 
   disconnectedCallback() {
     LocationSubscriptions.unsubscribe(this.onLocationChange);
+    BodySingleton.body = undefined;
   }
 }
 
