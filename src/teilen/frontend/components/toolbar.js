@@ -17,6 +17,7 @@ class Toolbar extends Base {
       align-items: center;
       justify-content: space-between;
       box-sizing: border-box;
+      gap: var(--size-4);
     }
 
     .nav-items {
@@ -32,19 +33,11 @@ class Toolbar extends Base {
     this.shadowRoot.innerHTML = html`
       <div class="inner">
         <div class="nav-items">
-          <teilen-button disabled>
-            <chevron-icon slot="icon" direction="left"></chevron-icon>
-            Back
-          </teilen-button>
-          <teilen-button disabled>
-            <chevron-icon slot="icon" direction="up"></chevron-icon>
-            Up
-          </teilen-button>
+          <teilen-search disabled></teilen-search>
           <teilen-button>
             <reload-icon slot="icon" size="5"></reload-icon>
           </teilen-button>
         </div>
-        <teilen-search disabled></teilen-search>
         <teilen-select disabled></teilen-select>
       </div>
     `;
