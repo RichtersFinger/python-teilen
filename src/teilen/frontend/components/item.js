@@ -33,6 +33,7 @@ class Item extends Base {
       min-width: 0;
       user-select: none;
       white-space: nowrap;
+      word-break: break-all;
       transition: box-shadow 100ms ease-out;
     }
     .selected {
@@ -41,6 +42,7 @@ class Item extends Base {
       white-space: normal;
     }
     .name {
+      font-size: var(--size-3);
       overflow: hidden;
       text-overflow: ellipsis;
     }
