@@ -2,7 +2,7 @@ import Base from "./base.js";
 import { formatTooltip } from "../lib.js";
 
 import "./location-indicator.js";
-import "./selection-indicator.js";
+import "./selection-download.js";
 import "./spinner.js";
 import "./item.js";
 
@@ -20,7 +20,7 @@ class Body extends Base {
     }
     .outer {
       width: 100%;
-      max-height: 82vh;
+      max-height: 85vh;
       padding: var(--size-3);
       background-color: var(--gray-0);
       border-radius: var(--size-3);
@@ -56,7 +56,7 @@ class Body extends Base {
       <div class="outer">
         <div class="inner-top">
           <teilen-location-indicator></teilen-location-indicator>
-          <teilen-selection-indicator></teilen-selection-indicator>
+          <teilen-selection-download></teilen-selection-download>
         </div>
         <div id="${innerBottom}" class="inner-bottom">
           <teilen-spinner></teilen-spinner>

@@ -83,7 +83,7 @@ class Item extends Base {
         .getElementById(root)
         .addEventListener("dblclick", () =>
           window.open(
-            `/files/${([...LocationStore.location, this.id].join("/"))}`,
+            `/files/${[...LocationStore.location, this.id].join("/")}`,
             "_blank",
           ),
         );
