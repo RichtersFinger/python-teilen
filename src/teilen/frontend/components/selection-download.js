@@ -2,6 +2,7 @@ import Base from "./base.js";
 
 import "./button.js";
 import "./icon-download.js";
+import "./modal-archive-download.js";
 
 import { Kind } from "./item.js";
 import { LocationStore } from "../data/location.js";
@@ -77,6 +78,10 @@ class SelectionDownload extends Base {
       // resolve selection
       let targets = Object.values(ItemsStore).filter((item) => item.selected);
       if (targets.length === 0) targets = Object.values(ItemsStore);
+      if (targets.length === 0) {
+        alert("Please select a target for download first.");
+        return;
+      }
 
       // download single file
       if (targets.length === 1 && targets[0].kind === Kind.file.id) {
@@ -102,8 +107,10 @@ class SelectionDownload extends Base {
           alert("Failed to prepare archive for download.");
         }
 
-        const archiveId = (await r.json()).id;
-        console.log(archiveId);
+        const modal = document.createElement("teilen-modal-archive-download");
+        modal.archiveId = (await r.json()).id ?? "missing";
+        this.shadowRoot.appendChild(modal);
+        modal.open();
       });
     });
   }
