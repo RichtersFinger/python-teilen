@@ -7,6 +7,7 @@ import { LocationSubscriptions } from "../data/location.js";
 
 const attributeDisabled = "disabled";
 
+const outer = "outer";
 const input = "input";
 
 class Search extends Base {
@@ -23,13 +24,17 @@ class Search extends Base {
       outline: none;
       width: 100%;
       box-sizing: border-box;
+      cursor: text;
     }
-    .outer:focus:not(:disabled) {
-      box-shadow: 0px var(--size-1) var(--size-1) rgba(0, 0, 0, 0.2);
+    .outer:focus-within:not(.disabled) {
+      box-shadow: var(--size-05) var(--size-05) var(--size-1) rgba(0, 0, 0, 0.2);
     }
     .disabled {
       cursor: not-allowed;
       color: var(--gray-30);
+    }
+    .icon {
+      color: var(--gray-60);
     }
     input {
       border: none;
@@ -63,15 +68,17 @@ class Search extends Base {
 
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
     this.shadowRoot.innerHTML = html`
-      <div class="outer ${isDisabled ? "disabled" : ""}">
-        <search-icon></search-icon>
-        <input id="${input}" type="text" ${isDisabled} />
+      <div id="${outer}" class="outer ${isDisabled ? "disabled" : ""}">
+        <search-icon class="icon"></search-icon>
+        <input id="${input}" type="text" placeholder="Search ..." ${isDisabled} />
       </div>
     `;
 
-    this.shadowRoot
-      .getElementById(input)
-      .addEventListener("input", () => BodySingleton.body?.renderItems());
+    const outerEl = this.shadowRoot.getElementById(outer);
+    const inputEl = this.shadowRoot.getElementById(input);
+
+    outerEl.addEventListener("click", () => inputEl.focus());
+    inputEl.addEventListener("input", () => BodySingleton.body?.renderItems());
   }
 
   get value() {

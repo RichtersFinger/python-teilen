@@ -1,7 +1,7 @@
 import Base from "./base.js";
 
 import "./search.js";
-import "./select.js";
+import "./select-sort-by.js";
 import "./button.js";
 import "./icon-chevron.js";
 import "./icon-reload.js";
@@ -44,7 +44,7 @@ class Toolbar extends Base {
             <reload-icon slot="icon" size="5"></reload-icon>
           </teilen-button>
         </div>
-        <teilen-select id="${order}" disabled></teilen-select>
+        <teilen-sort-by-select id="${order}"></teilen-select>
       </div>
     `;
 

@@ -25,7 +25,7 @@ class Button extends Base {
       background-color: var(--gray-20);
     }
     .outer:focus:not(:disabled) {
-      box-shadow: 0px var(--size-1) var(--size-1) rgba(0, 0, 0, 0.2);
+      box-shadow: var(--size-05) var(--size-05) var(--size-05) rgba(0, 0, 0, 0.2);
     }
     .outer:disabled {
       cursor: not-allowed;
