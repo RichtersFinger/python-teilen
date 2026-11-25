@@ -8,7 +8,7 @@ modalSheet.replaceSync(css`
     border-radius: var(--size-2);
     padding: 0;
     box-shadow: var(--size-1) var(--size-1) var(--size-3) rgba(0, 0, 0, 0.2);
-    width: var(--size-80);
+    width: var(--modal-size, var(--size-80));
   }
   .modal::backdrop {
     background: rgba(0, 0, 0, 0.5);
