@@ -1,0 +1,3 @@
+[submodule "src/teilen/webcan"]
+	path = src/teilen/webcan
+	url = git@github.com:RichtersFinger/webcan.git

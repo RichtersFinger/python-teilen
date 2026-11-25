@@ -1,43 +1,13 @@
-SHELL := /bin/bash
-VENV := venv
-SKIP_CLIENT =
-VERSION =
+APP_SERVICE_NAME := teilen-dev-app
 
-_:
-	echo "Missing target. See README for details."
+check:
+	[ "$$(docker ps -a | grep ${APP_SERVICE_NAME})" ] || (echo "Run 'docker compose up' first" && exit 1)
 
-venv:
-	[ -d "${VENV}" ] || python3 -m venv venv
+shell: check
+	docker exec -it ${APP_SERVICE_NAME} sh
 
-ifeq ($(SKIP_CLIENT), yes)
-$(info skipping client!)
-build-frontend:
-else
-build-frontend:
-	cd frontend && \
-		npm install && \
-		GENERATE_SOURCEMAP=false npm run build
-endif
-
-build-backend:
-	rm -rf backend/teilen/client
-	cp -r frontend/build backend/teilen/client
-
-build: venv build-frontend build-backend
-	[ "${VERSION}" != "" ] && \
-		VERSIONENV="VERSION=${VERSION}" || \
-		echo "Using default version"
-	source "${VENV}/bin/activate" && \
-		pip install --upgrade pip wheel setuptools && \
-		cd backend && \
-		${VERSIONENV} python3 setup.py sdist bdist_wheel || \
-		python3 setup.py sdist bdist_wheel
-
-publish: venv
-	source "${VENV}/bin/activate" && \
-		pip install --upgrade pip twine && \
-		cd backend && \
-		python3 -m twine upload dist/*
+build: clean check
+	docker exec -it ${APP_SERVICE_NAME} sh -c "pip install --uploaded-prior-to P14D 'build==1.6.1' && python -m build --wheel && rm -r build/"
 
 clean:
-	git clean -dfX
+	rm -rf __pycache__ **/__pycache__ teilen.egg-info build dist
