@@ -18,4 +18,4 @@ class AppConfig:
     static_path: Path = Path(teilen.__file__).parent / "frontend"
     working_dir: Path = Path(os.environ.get("WORKING_DIR", Path.cwd())).resolve()
     password: str | None = os.environ.get("PASSWORD")
-    archives_ttl: float = float(os.environ.get("ARCHIVES_TTL", 600))
+    archives_ttl: float = float(os.environ.get("ARCHIVES_TTL", 3600))
