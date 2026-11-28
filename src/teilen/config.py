@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import teilen
 
@@ -16,9 +16,6 @@ class AppConfig:
     port: int = int(os.environ.get("PORT", "27183"))
 
     static_path: Path = Path(teilen.__file__).parent / "frontend"
-    session_cookie_name: str = field(default_factory=lambda: "teilen_session")
-    working_dir: Path = Path(
-        os.environ.get("WORKING_DIR", Path.cwd())
-    ).resolve()
+    working_dir: Path = Path(os.environ.get("WORKING_DIR", Path.cwd())).resolve()
     password: str | None = os.environ.get("PASSWORD")
     archives_ttl: float = float(os.environ.get("ARCHIVES_TTL", 600))

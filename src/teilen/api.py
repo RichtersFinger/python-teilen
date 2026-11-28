@@ -1,7 +1,7 @@
 """teilen API definition."""
 
 import sys
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 from importlib.metadata import version
 from pathlib import Path
 from datetime import datetime
@@ -15,6 +15,60 @@ import atexit
 
 from teilen.webcan import Handler, StaticHandler, Response, Request, HTTPError
 from teilen.config import AppConfig
+
+
+class AuthHandler(Handler):
+    """Authorization handler."""
+
+    path = "/auth"
+    X_TEILEN_AUTH = "x_teilen_auth"
+
+    def __init__(self, config: AppConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.config = config
+
+    @classmethod
+    def require_password(cls, password: str | None, request: Request) -> None:
+        """Validates password authorization.
+
+        :raises HTTPError: If not allowed.
+        """
+        if password is None:
+            return
+
+        if unquote(request.cookies.get(cls.X_TEILEN_AUTH, "")) == password:
+            return
+
+        raise HTTPError(403, "Forbidden.")
+
+    def _add_set_cookie_header(self, response: Response) -> Response:
+        response.headers["Set-Cookie"] = (
+            f"{self.X_TEILEN_AUTH}={quote(self.config.password, safe='')}; "
+            + "Path=/; Max-Age=3600; HttpOnly; SameSite=Lax"
+        )
+        return response
+
+    def get(self, request: Request):
+        """Assert valid login."""
+        self.require_password(self.config.password, request)
+        return self._add_set_cookie_header(Response.text("OK"))
+
+    def post(self, request: Request):
+        """Perform login, reading password from json."""
+        request.json()
+        if self.config.password is None:
+            return Response.text("OK")
+
+        try:
+            self.require_password(self.config.password, request)
+            return self._add_set_cookie_header(Response.text("OK"))
+        except HTTPError:
+            pass
+
+        if request.json().get("password") != self.config.password:
+            raise HTTPError(403, "Forbidden.")
+
+        return self._add_set_cookie_header(Response.text("OK"))
 
 
 class FallbackHandler(StaticHandler):
@@ -33,6 +87,20 @@ class FallbackHandler(StaticHandler):
         if path.parts and path.parts[0].lower() == "static":
             raise HTTPError(404, "Not found.")
 
+        return super().get(request)
+
+
+class ProtectedStaticHandler(StaticHandler):
+    """Static handler with authorization."""
+
+    path = "{filepath:multisegment}"
+
+    def __init__(self, config: AppConfig, **kwargs):
+        super().__init__(**kwargs)
+        self.config = config
+
+    def get(self, request: Request):
+        AuthHandler.require_password(self.config.password, request)
         return super().get(request)
 
 
@@ -70,6 +138,8 @@ class ItemsHandler(Handler):
 
         Reads requested path as quoted string from query argument "path".
         """
+        AuthHandler.require_password(self.config.password, request)
+
         path_arg = ""
         try:
             path_arg = request.query_params["path"][0]
@@ -88,20 +158,14 @@ class ItemsHandler(Handler):
             return Response.text("Does not exist.", 404)
 
         contents = list(target_path.glob("*"))
-        folders = list(
-            filter(lambda p: p.is_dir() and not p.is_symlink(), contents)
-        )
-        files = list(
-            filter(lambda p: p.is_file() and not p.is_symlink(), contents)
-        )
+        folders = list(filter(lambda p: p.is_dir() and not p.is_symlink(), contents))
+        files = list(filter(lambda p: p.is_file() and not p.is_symlink(), contents))
         return Response.json(
             {
                 "meta": {
                     "total": len(folders) + len(files),
                     "timestamp": datetime.now().isoformat(),
-                    "path": str(
-                        target_path.relative_to(self.config.working_dir)
-                    ),
+                    "path": str(target_path.relative_to(self.config.working_dir)),
                 },
                 "data": {
                     "items": [
@@ -220,9 +284,7 @@ class ArchiveHandler(Handler):
         )
 
         try:
-            with zipfile.ZipFile(
-                job.destination, "w", zipfile.ZIP_STORED
-            ) as archive:
+            with zipfile.ZipFile(job.destination, "w", zipfile.ZIP_STORED) as archive:
                 for t in job.targets:
                     archive.write(
                         t,
@@ -252,6 +314,8 @@ class ArchiveHandler(Handler):
         "status" is provided. Archive (job) id is read from the "id" query
         argument.
         """
+        AuthHandler.require_password(self.config.password, request)
+
         try:
             job_id = request.query_params["id"][0]
         except (KeyError, IndexError):
@@ -277,6 +341,8 @@ class ArchiveHandler(Handler):
         - field 'targets' (array of paths)
         - location (relative path base in archive)
         """
+        AuthHandler.require_password(self.config.password, request)
+
         request_json = request.json()
         location = (
             self.config.working_dir / request_json.get("location", "")
@@ -316,9 +382,7 @@ class ArchiveHandler(Handler):
                 )
 
         tmp_dir = Path(mkdtemp(prefix="teilen-")).resolve()
-        job = self.ArchiveJob(
-            targets, (tmp_dir / "archive").with_suffix(".zip")
-        )
+        job = self.ArchiveJob(targets, (tmp_dir / "archive").with_suffix(".zip"))
         with self._jobs_lock:
             self._jobs[job.id_] = job
         threading.Thread(

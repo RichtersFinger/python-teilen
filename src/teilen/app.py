@@ -24,9 +24,7 @@ def load_callback_url_options() -> list[dict]:
     s.settimeout(0)
     try:
         s.connect(("10.254.254.254", 1))
-        options.append(
-            {"address": "http://" + s.getsockname()[0], "name": "local"}
-        )
+        options.append({"address": "http://" + s.getsockname()[0], "name": "local"})
     # pylint: disable=broad-exception-caught
     except Exception:
         pass
@@ -35,9 +33,7 @@ def load_callback_url_options() -> list[dict]:
 
     # get global IP
     try:
-        with urllib.request.urlopen(
-            "https://api.ipify.org", timeout=1
-        ) as response:
+        with urllib.request.urlopen("https://api.ipify.org", timeout=1) as response:
             options.append(
                 {
                     "address": "http://" + response.read().decode("utf-8"),
@@ -61,18 +57,12 @@ def print_welcome_message(config: AppConfig) -> None:
             "",
             "The contents of the following directory will be available:",
             (
-                str(config.working_dir)[:30]
-                + "..."
-                + str(config.working_dir)[-30:]
+                str(config.working_dir)[:30] + "..." + str(config.working_dir)[-30:]
                 if len(str(config.working_dir)) > 70
                 else str(config.working_dir)
             ),
         ]
-        + (
-            ["Password protection is active."]
-            if config.password is not None
-            else []
-        )
+        + (["Password protection is active."] if config.password is not None else [])
         + (
             ["", "The following addresses have been detected automatically:"]
             if url_options
@@ -97,12 +87,15 @@ def app_factory(config: AppConfig) -> App:
 
     app_ = App()
 
+    app_.register("/api/v1", api.AuthHandler(config))
     app_.register("/api/v1", api.ConfigurationHandler(config))
     app_.register("/api/v1", api.ItemsHandler(config))
     archive_handler = api.ArchiveHandler(config)
     archive_handler.plan_cleanup()
     app_.register("/api/v1", archive_handler)
-    app_.serve_static("/files", config.working_dir)
+    app_.register(
+        "/files", api.ProtectedStaticHandler(config, target=config.working_dir)
+    )
 
     app_.serve_static("/static", config.static_path)
     app_.fallback(api.FallbackHandler(config.static_path / "index.html"))
@@ -169,8 +162,7 @@ Arguments:
         # working directory (should by the last and a singular argument)
         if len(sys.argv) > index + 1:
             print(
-                "\033[1;31mERROR\033[0m: "
-                + f"Unknown option '{sys.argv[index]}'.",
+                "\033[1;31mERROR\033[0m: " + f"Unknown option '{sys.argv[index]}'.",
                 file=sys.stderr,
             )
             sys.exit(1)
@@ -194,8 +186,7 @@ def run(app=None, config=None):
     # not intended for production
     if config.mode != "prod":
         print(
-            "\033[1;33mERROR\033[0m: "
-            + f"Running in unexpected MODE '{config.mode}'.",
+            "\033[1;33mERROR\033[0m: " + f"Running in unexpected MODE '{config.mode}'.",
             file=sys.stderr,
         )
         return
