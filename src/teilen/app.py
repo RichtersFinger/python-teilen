@@ -11,20 +11,22 @@ from teilen import api
 from teilen.config import AppConfig
 
 
-def load_callback_url_options() -> list[dict]:
+def load_callback_url_options(config: AppConfig) -> list[dict]:
     """
     Returns a list of IP-addresses with a name.
 
     Every record contains the fields 'name' and 'address'.
     """
-    options = []
+    options = [
+        {"address": "http://localhost", "name": "local"},
+    ]
 
     # get LAN-address (https://stackoverflow.com/a/28950776)
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0)
     try:
         s.connect(("10.254.254.254", 1))
-        options.append({"address": "http://" + s.getsockname()[0], "name": "local"})
+        options.append({"address": "http://" + s.getsockname()[0], "name": "LAN"})
     # pylint: disable=broad-exception-caught
     except Exception:
         pass
@@ -32,24 +34,25 @@ def load_callback_url_options() -> list[dict]:
         s.close()
 
     # get global IP
-    try:
-        with urllib.request.urlopen("https://api.ipify.org", timeout=1) as response:
-            options.append(
-                {
-                    "address": "http://" + response.read().decode("utf-8"),
-                    "name": "global",
-                }
-            )
-    # pylint: disable=broad-exception-caught
-    except Exception:
-        pass
+    if config.bind == "0.0.0.0":
+        try:
+            with urllib.request.urlopen("https://api.ipify.org", timeout=1) as response:
+                options.append(
+                    {
+                        "address": "http://" + response.read().decode("utf-8"),
+                        "name": "global",
+                    }
+                )
+        # pylint: disable=broad-exception-caught
+        except Exception:
+            pass
 
     return options
 
 
 def print_welcome_message(config: AppConfig) -> None:
     """Prints welcome message to stdout."""
-    url_options = load_callback_url_options()
+    url_options = load_callback_url_options(config)
     lines = (
         (["Running in dev-mode."] if config.mode == "dev" else [])
         + [
@@ -119,6 +122,8 @@ Options:
                                     share.
   --port                            Set a specific port to run on.
                                     [Default {config.port}]
+  --bind                            Set a specific network host to run on.
+                                    [Default {config.bind}]
 
 Arguments:
   path                              path to the directory that is shared
@@ -159,6 +164,19 @@ Arguments:
             index += 2
             continue
 
+        # bind
+        if sys.argv[index] in ["--bind"]:
+            if len(sys.argv) <= index + 1:
+                print(
+                    "\033[1;31mERROR\033[0m: "
+                    + f"Missing value for option '{sys.argv[index]}'.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            config.bind = sys.argv[index + 1]
+            index += 2
+            continue
+
         # working directory (should by the last and a singular argument)
         if len(sys.argv) > index + 1:
             print(
@@ -193,4 +211,4 @@ def run(app=None, config=None):
 
     app.set_on_startup(lambda _: print_welcome_message(config))
 
-    app.run("0.0.0.0", config.port)
+    app.run(config.bind, config.port)
