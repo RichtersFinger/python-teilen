@@ -1,5 +1,21 @@
 import Base from "./base.js";
 
+import { BodySingleton } from "../singletons.js";
+
+// sorting is parsed from these strings, so the naming pattern is mandatory
+// (see body.js for details):
+// "<item-property>-<asc|desc>"
+export const Options = {
+  nameAsc: "name-asc",
+  nameDesc: "name-desc",
+  dateAsc: "date-asc",
+  dateDesc: "date-desc",
+  sizeAsc: "size-asc",
+  sizeDesc: "size-desc",
+};
+
+const select = "select";
+
 class SortBySelect extends Base {
   static css = css`
     .outer {
@@ -35,16 +51,24 @@ class SortBySelect extends Base {
 
     this.shadowRoot.innerHTML = html`
       <div class="outer">
-        <select id="select">
-          <option value="name-asc">Sort by name</option>
-          <option value="name-desc">Sort by name (descending)</option>
-          <option value="date-asc">Sort by date</option>
-          <option value="date-desc">Sort by date (descending)</option>
-          <option value="size-asc">Sort by size</option>
-          <option value="size-desc">Sort by size (descending)</option>
+        <select id="${select}">
+          <option value="${Options.nameAsc}">Sort by name</option>
+          <option value="${Options.nameDesc}">Sort by name (descending)</option>
+          <option value="${Options.dateAsc}">Sort by date</option>
+          <option value="${Options.dateDesc}">Sort by date (descending)</option>
+          <option value="${Options.sizeAsc}">Sort by size</option>
+          <option value="${Options.sizeDesc}">Sort by size (descending)</option>
         </select>
       </div>
     `;
+
+    this.shadowRoot.getElementById(select).addEventListener("change", () => {
+      BodySingleton.body?.renderItems();
+    });
+  }
+
+  get value() {
+    return this.shadowRoot.getElementById(select).value;
   }
 }
 

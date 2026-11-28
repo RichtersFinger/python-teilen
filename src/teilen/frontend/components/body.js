@@ -94,10 +94,38 @@ class Body extends Base {
 
   renderItems() {
     const innerElement = this.shadowRoot.getElementById(innerBottom);
+
+    let getItemOrderProperty;
+    if (ToolbarSingleton.order.value.startsWith("size")) {
+      getItemOrderProperty = (item) => item.size;
+    } else if (ToolbarSingleton.order.value.startsWith("date")) {
+      getItemOrderProperty = (item) => item.mtime;
+    } else {
+      getItemOrderProperty = (item) => item.name.toLowerCase();
+    }
+    const itemOrderFactor = ToolbarSingleton.order.value.endsWith("asc")
+      ? 1
+      : -1;
+
     const children = this.items
       .filter((item) =>
         item.name.toLowerCase().includes(ToolbarSingleton.search.value.trim()),
       )
+      .sort((a, b) => {
+        if (a.kind !== b.kind) return a.kind > b.kind ? 1 : -1;
+
+        const aProp = getItemOrderProperty(a);
+        const bProp = getItemOrderProperty(b);
+
+        if (aProp === undefined && bProp === undefined)
+          return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1;
+
+        return aProp === bProp
+          ? 0
+          : aProp > bProp
+            ? itemOrderFactor
+            : -itemOrderFactor;
+      })
       .map((item) => {
         let _element;
         _element = document.createElement("teilen-item");
