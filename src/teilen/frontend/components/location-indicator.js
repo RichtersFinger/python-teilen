@@ -13,7 +13,7 @@ class Location extends Base {
     .outer {
       user-select: none;
       width: 100%;
-      height: 100%;
+      height: var(--size-6);
       display: flex;
       flex-direction: row;
       align-items: start;
