@@ -1,7 +1,14 @@
 import Base from "./base.js";
 
+import { configuration } from "../data/configuration.js";
+
 import "./header.js";
 import "./main.js";
+import "./modal-login.js";
+import { Session } from "../data/session.js";
+import { BodySingleton } from "../singletons.js";
+
+const loginModal = "loginModal";
 
 class Root extends Base {
   static css = css`
@@ -12,7 +19,7 @@ class Root extends Base {
       flex-direction: column;
     }
 
-    .teilen-header {
+    .header {
       flex-shrink: 0;
       width: 100%;
       height: 44px;
@@ -22,7 +29,7 @@ class Root extends Base {
       box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
     }
 
-    .teilen-main {
+    .main {
       display: flex;
       flex: 1;
     }
@@ -32,13 +39,28 @@ class Root extends Base {
     super();
 
     this.shadowRoot.innerHTML = html`
-      <header class="teilen-header">
+      <header class="header">
         <teilen-header></teilen-header>
       </header>
-      <main class="teilen-main">
+      <teilen-modal-login id="${loginModal}"></teilen-modal-login>
+      <main class="main">
         <teilen-main></teilen-main>
       </main>
     `;
+  }
+
+  async connectedCallback() {
+    if (!configuration.passwordRequired) {
+      Session.loggedIn = true;
+      return;
+    }
+    if ((await fetch("/api/v1/auth")).ok) {
+      Session.loggedIn = true;
+      BodySingleton.body.updateBody();
+      return;
+    }
+
+    this.shadowRoot.getElementById(loginModal).open();
   }
 }
 

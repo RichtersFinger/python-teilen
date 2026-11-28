@@ -16,7 +16,6 @@ class ArchiveDownloadModal extends BaseModal {
       color: var(--gray-50);
     }
     .error {
-      display: none;
       color: red;
     }
   `;
@@ -32,7 +31,7 @@ class ArchiveDownloadModal extends BaseModal {
           <div class="modal-body">
             <span id="${info}" class="info"></span>
             <teilen-progress-bar id="${progress}"></teilen-progress-bar>
-            <span id="${error}" class="error"></span>
+            <span id="${error}" class="error" style="display: none"></span>
           </div>
           <div class="modal-footer">
             <teilen-button id="${btnClose}">Close</teilen-button>
@@ -86,7 +85,7 @@ class ArchiveDownloadModal extends BaseModal {
         const errorElement = this.shadowRoot.getElementById(error);
         errorElement.textContent =
           "An error occurred while preparing the download. Please try again.";
-        errorElement.style.display = undefined;
+        errorElement.style.display = "";
         clearInterval(this._interval);
         return;
       }

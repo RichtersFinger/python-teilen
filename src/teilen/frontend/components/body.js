@@ -6,6 +6,7 @@ import "./selection-download.js";
 import "./spinner.js";
 import "./item.js";
 
+import { Session } from "../data/session.js";
 import { ItemsActions } from "../data/items.js";
 import { LocationStore, LocationSubscriptions } from "../data/location.js";
 import { BodySingleton, ToolbarSingleton } from "../singletons.js";
@@ -142,7 +143,8 @@ class Body extends Base {
   }
 
   connectedCallback() {
-    this.updateBody();
+    if (Session.loggedIn) this.updateBody();
+
     LocationSubscriptions.subscribe(this.onLocationChange);
     BodySingleton.body = this;
   }
