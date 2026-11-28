@@ -8,7 +8,7 @@ import "./modal-login.js";
 import { Session } from "../data/session.js";
 import { BodySingleton } from "../singletons.js";
 
-const loginModal = "loginModal";
+const idLoginModal = "login-modal";
 
 class Root extends Base {
   static css = css`
@@ -42,7 +42,7 @@ class Root extends Base {
       <header class="header">
         <teilen-header></teilen-header>
       </header>
-      <teilen-modal-login id="${loginModal}"></teilen-modal-login>
+      <teilen-login-modal id="${idLoginModal}"></teilen-login-modal>
       <main class="main">
         <teilen-main></teilen-main>
       </main>
@@ -60,7 +60,7 @@ class Root extends Base {
       return;
     }
 
-    this.shadowRoot.getElementById(loginModal).open();
+    this.shadowRoot.getElementById(idLoginModal).open();
   }
 }
 

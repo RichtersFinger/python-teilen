@@ -13,7 +13,7 @@ class Header extends Base {
     super();
 
     this.shadowRoot.innerHTML = html`
-      <teilen-modal-about id="about-modal"></teilen-modal-about>
+      <teilen-about-modal id="about-modal"></teilen-about-modal>
       <teilen-logo id="logo-outer" class="logo"></teilen-logo>
     `;
 

@@ -6,8 +6,8 @@ import "./icon-external-link.js";
 
 import { configuration } from "../data/configuration.js";
 
-const dialog = "dialog";
-const btnClose = "close-button";
+const idDialog = "dialog";
+const idBtnClose = "close-button";
 
 class AboutModal extends BaseModal {
   static css = css`
@@ -40,7 +40,7 @@ class AboutModal extends BaseModal {
     super();
 
     this.shadowRoot.innerHTML = html`
-      <dialog id="${dialog}" class="modal">
+      <dialog id="${idDialog}" class="modal">
         <div class="modal-content">
           <h2 class="modal-title">Software Info</h2>
           <hr class="modal-separator" />
@@ -56,11 +56,11 @@ class AboutModal extends BaseModal {
                   target="_blank"
                   href="https://github.com/RichtersFinger/python-teilen"
                 >
-                  <external-link-icon size="4"></external-link-icon>
+                  <teilen-external-link-icon size="4"></teilen-external-link-icon>
                   View on GitHub
                 </a>
                 <a target="_blank" href="https://pypi.org/project/teilen/">
-                  <external-link-icon size="4"></external-link-icon>
+                  <teilen-external-link-icon size="4"></teilen-external-link-icon>
                   View on PyPi
                 </a>
               </div>
@@ -69,33 +69,33 @@ class AboutModal extends BaseModal {
             </div>
           </div>
           <div class="modal-footer">
-            <teilen-button id="${btnClose}">Close</teilen-button>
+            <teilen-button id="${idBtnClose}">Close</teilen-button>
           </div>
         </div>
       </dialog>
     `;
 
     // wire dismiss
-    let dialogEl = this.shadowRoot.getElementById(dialog);
+    let dialogEl = this.shadowRoot.getElementById(idDialog);
     dialogEl.addEventListener("click", (event) => {
       if (event.target === dialogEl) {
         this.close();
       }
     });
     this.shadowRoot
-      .getElementById(btnClose)
+      .getElementById(idBtnClose)
       .addEventListener("click", () => this.close());
   }
 
   open() {
-    this.shadowRoot.getElementById(dialog).showModal();
+    this.shadowRoot.getElementById(idDialog).showModal();
   }
 
   close() {
-    this.shadowRoot.getElementById(dialog).close();
+    this.shadowRoot.getElementById(idDialog).close();
   }
 }
 
 export default AboutModal;
 
-customElements.define("teilen-modal-about", AboutModal);
+customElements.define("teilen-about-modal", AboutModal);

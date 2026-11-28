@@ -14,7 +14,7 @@ export const Options = {
   sizeDesc: "size-desc",
 };
 
-const select = "select";
+const idSelect = "select";
 
 class SortBySelect extends Base {
   static css = css`
@@ -51,7 +51,7 @@ class SortBySelect extends Base {
 
     this.shadowRoot.innerHTML = html`
       <div class="outer">
-        <select id="${select}">
+        <select id="${idSelect}">
           <option value="${Options.nameAsc}">Sort by name</option>
           <option value="${Options.nameDesc}">Sort by name (descending)</option>
           <option value="${Options.dateAsc}">Sort by date</option>
@@ -62,13 +62,13 @@ class SortBySelect extends Base {
       </div>
     `;
 
-    this.shadowRoot.getElementById(select).addEventListener("change", () => {
+    this.shadowRoot.getElementById(idSelect).addEventListener("change", () => {
       BodySingleton.body?.renderItems();
     });
   }
 
   get value() {
-    return this.shadowRoot.getElementById(select).value;
+    return this.shadowRoot.getElementById(idSelect).value;
   }
 }
 

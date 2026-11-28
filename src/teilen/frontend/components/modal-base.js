@@ -1,6 +1,7 @@
 import Base from "./base.js";
 
 const modalSheet = new CSSStyleSheet();
+
 modalSheet.replaceSync(css`
   .modal {
     outline: none;

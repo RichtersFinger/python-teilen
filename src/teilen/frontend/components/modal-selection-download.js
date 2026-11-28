@@ -3,14 +3,14 @@ import BaseModal from "./modal-base.js";
 import "./button.js";
 import "./progress-bar.js";
 
-const dialog = "dialog";
-const btnDownload = "download-button";
-const btnClose = "close-button";
-const progress = "progress";
-const info = "info";
-const error = "error";
+const idDialog = "dialog";
+const idBtnDownload = "download-button";
+const idBtnClose = "close-button";
+const idProgress = "progress";
+const idInfo = "info";
+const idError = "error";
 
-class ArchiveDownloadModal extends BaseModal {
+class SelectionDownloadModal extends BaseModal {
   static css = css`
     .info {
       color: var(--gray-50);
@@ -24,18 +24,18 @@ class ArchiveDownloadModal extends BaseModal {
     super();
 
     this.shadowRoot.innerHTML = html`
-      <dialog id="${dialog}" class="modal">
+      <dialog id="${idDialog}" class="modal">
         <div class="modal-content">
           <h2 class="modal-title">Download</h2>
           <hr class="modal-separator" />
           <div class="modal-body">
-            <span id="${info}" class="info"></span>
-            <teilen-progress-bar id="${progress}"></teilen-progress-bar>
-            <span id="${error}" class="error" style="display: none"></span>
+            <span id="${idInfo}" class="info"></span>
+            <teilen-progress-bar id="${idProgress}"></teilen-progress-bar>
+            <span id="${idError}" class="error" style="display: none"></span>
           </div>
           <div class="modal-footer">
-            <teilen-button id="${btnClose}">Close</teilen-button>
-            <teilen-button id="${btnDownload}" disabled>Download</teilen-button>
+            <teilen-button id="${idBtnClose}">Close</teilen-button>
+            <teilen-button id="${idBtnDownload}" disabled>Download</teilen-button>
           </div>
         </div>
       </dialog>
@@ -46,14 +46,14 @@ class ArchiveDownloadModal extends BaseModal {
     this._status = {};
 
     this.shadowRoot
-      .getElementById(btnDownload)
+      .getElementById(idBtnDownload)
       .addEventListener("click", () => {
         window.open(
           "/api/v1/archives?" + new URLSearchParams({ id: this._archiveId }),
           "_blank",
         );
       });
-    this.shadowRoot.getElementById(btnClose).addEventListener("click", () => {
+    this.shadowRoot.getElementById(idBtnClose).addEventListener("click", () => {
       if (confirm("Are you sure you want to close this dialog?")) this.close();
     });
   }
@@ -65,13 +65,13 @@ class ArchiveDownloadModal extends BaseModal {
   }
 
   open() {
-    this.shadowRoot.getElementById(dialog).showModal();
+    this.shadowRoot.getElementById(idDialog).showModal();
     if (!this._archiveId || this._interval) return;
     this._interval = setInterval(() => this.refresh(), 500);
   }
 
   close() {
-    this.shadowRoot.getElementById(dialog).close();
+    this.shadowRoot.getElementById(idDialog).close();
     clearInterval(this._interval);
     this._interval = undefined;
   }
@@ -82,7 +82,7 @@ class ArchiveDownloadModal extends BaseModal {
         new URLSearchParams({ id: this._archiveId, status: "" }),
     ).then(async (r) => {
       if (!r.ok) {
-        const errorElement = this.shadowRoot.getElementById(error);
+        const errorElement = this.shadowRoot.getElementById(idError);
         errorElement.textContent =
           "An error occurred while preparing the download. Please try again.";
         errorElement.style.display = "";
@@ -91,22 +91,22 @@ class ArchiveDownloadModal extends BaseModal {
       }
 
       this._status = await r.json();
-      this.shadowRoot.getElementById(progress).progress = Math.ceil(
+      this.shadowRoot.getElementById(idProgress).progress = Math.ceil(
         ((this._status?.progress ?? 0) / (this._status?.totalFiles ?? 1)) * 100,
       );
       if (this._status?.completed) {
-        this.shadowRoot.getElementById(info).innerText =
+        this.shadowRoot.getElementById(idInfo).innerText =
           "Your download is ready.";
-        this.shadowRoot.getElementById(btnDownload).removeAttribute("disabled");
+        this.shadowRoot.getElementById(idBtnDownload).removeAttribute("disabled");
         clearInterval(this._interval);
       } else {
-        this.shadowRoot.getElementById(info).innerText =
+        this.shadowRoot.getElementById(idInfo).innerText =
           "Preparing download ...";
       }
     });
   }
 }
 
-export default ArchiveDownloadModal;
+export default SelectionDownloadModal;
 
-customElements.define("teilen-modal-archive-download", ArchiveDownloadModal);
+customElements.define("teilen-selection-download-modal", SelectionDownloadModal);

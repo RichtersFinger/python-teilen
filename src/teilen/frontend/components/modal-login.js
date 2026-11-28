@@ -4,10 +4,10 @@ import "./button.js";
 import { Session } from "../data/session.js";
 import { BodySingleton } from "../singletons.js";
 
-const dialog = "dialog";
-const password = "password";
-const error = "error";
-const btnSubmit = "submit";
+const idDialog = "dialog";
+const idPassword = "password";
+const idError = "error";
+const idBtnSubmit = "submit";
 
 class LoginModal extends BaseModal {
   static css = css`
@@ -34,26 +34,26 @@ class LoginModal extends BaseModal {
     super();
 
     this.shadowRoot.innerHTML = html`
-      <dialog id="${dialog}" class="modal">
+      <dialog id="${idDialog}" class="modal">
         <div class="modal-content">
           <h2 class="modal-title">Password Required</h2>
           <hr class="modal-separator" />
           <div class="modal-body">
-            <input id="${password}" type="password" />
-            <span id="${error}" class="error" style="display: none"></span>
+            <input id="${idPassword}" type="password" />
+            <span id="${idError}" class="error" style="display: none"></span>
           </div>
           <div class="modal-footer">
-            <teilen-button id="${btnSubmit}">Submit</teilen-button>
+            <teilen-button id="${idBtnSubmit}">Submit</teilen-button>
           </div>
         </div>
       </dialog>
     `;
 
     // wire login
-    let passwordElement = this.shadowRoot.getElementById(password);
-    let errorElement = this.shadowRoot.getElementById(error);
+    let passwordElement = this.shadowRoot.getElementById(idPassword);
+    let errorElement = this.shadowRoot.getElementById(idError);
     this.shadowRoot
-      .getElementById(btnSubmit)
+      .getElementById(idBtnSubmit)
       .addEventListener("click", async () => {
         const r = await fetch("/api/v1/auth", {
           method: "POST",
@@ -76,14 +76,14 @@ class LoginModal extends BaseModal {
   }
 
   open() {
-    this.shadowRoot.getElementById(dialog).showModal();
+    this.shadowRoot.getElementById(idDialog).showModal();
   }
 
   close() {
-    this.shadowRoot.getElementById(dialog).close();
+    this.shadowRoot.getElementById(idDialog).close();
   }
 }
 
 export default LoginModal;
 
-customElements.define("teilen-modal-login", LoginModal);
+customElements.define("teilen-login-modal", LoginModal);

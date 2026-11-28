@@ -7,9 +7,9 @@ import "./icon-reload.js";
 
 import { BodySingleton, ToolbarSingleton } from "../singletons.js";
 
-const search = "search";
-const reload = "reload";
-const order = "order";
+const idSearch = "search";
+const idReload = "reload";
+const idOrder = "order";
 
 class Toolbar extends Base {
   static css = css`
@@ -38,23 +38,23 @@ class Toolbar extends Base {
     this.shadowRoot.innerHTML = html`
       <div class="inner">
         <div class="nav-items">
-          <teilen-search id="${search}"></teilen-search>
-          <teilen-button id="${reload}">
-            <reload-icon slot="icon" size="5"></reload-icon>
+          <teilen-search id="${idSearch}"></teilen-search>
+          <teilen-button id="${idReload}">
+            <teilen-reload-icon slot="icon" size="5"></teilen-reload-icon>
           </teilen-button>
         </div>
-        <teilen-sort-by-select id="${order}"></teilen-select>
+        <teilen-sort-by-select id="${idOrder}"></teilen-select>
       </div>
     `;
 
     this.shadowRoot
-      .getElementById(reload)
+      .getElementById(idReload)
       .addEventListener("click", () => BodySingleton.body.updateBody());
   }
 
   connectedCallback() {
-    ToolbarSingleton.search = this.shadowRoot.getElementById(search);
-    ToolbarSingleton.order = this.shadowRoot.getElementById(order);
+    ToolbarSingleton.search = this.shadowRoot.getElementById(idSearch);
+    ToolbarSingleton.order = this.shadowRoot.getElementById(idOrder);
   }
 
   disconnectedCallback() {

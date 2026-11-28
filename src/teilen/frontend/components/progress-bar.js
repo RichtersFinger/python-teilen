@@ -1,7 +1,7 @@
 import Base from "./base.js";
 
-const inner = "inner";
-const annotation = "annotation";
+const idInner = "inner";
+const idAnnotation = "annotation";
 
 class ProgressBar extends Base {
   static css = css`
@@ -40,10 +40,10 @@ class ProgressBar extends Base {
     this.shadowRoot.innerHTML = html`
       <div>
         <div class="outer">
-          <div id="${inner}" class="inner"></div>
+          <div id="${idInner}" class="inner"></div>
         </div>
         <div class="annotation">
-          <span id="${annotation}">0%</span>
+          <span id="${idAnnotation}">0%</span>
         </div>
       </div>
     `;
@@ -58,9 +58,9 @@ class ProgressBar extends Base {
   set progress(value) {
     this._progress = Math.max(0, Math.min(100, Number(value) || 0));
     this.shadowRoot
-      .getElementById(inner)
+      .getElementById(idInner)
       .style.setProperty("--progress", this._progress);
-    this.shadowRoot.getElementById(annotation).innerText = `${this._progress}%`;
+    this.shadowRoot.getElementById(idAnnotation).innerText = `${this._progress}%`;
   }
 }
 

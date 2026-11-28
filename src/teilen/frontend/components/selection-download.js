@@ -2,14 +2,14 @@ import Base from "./base.js";
 
 import "./button.js";
 import "./icon-download.js";
-import "./modal-archive-download.js";
+import "./modal-selection-download.js";
 
 import { Kind } from "./item.js";
 import { LocationStore } from "../data/location.js";
 import { ItemsStore, ItemsSubscriptions } from "../data/items.js";
 
-const button = "button";
-const tooltip = "tooltip";
+const idButton = "button";
+const idTooltip = "tooltip";
 
 class SelectionDownload extends Base {
   static css = css`
@@ -67,14 +67,14 @@ class SelectionDownload extends Base {
     super();
 
     this.shadowRoot.innerHTML = html`
-      <span id="${tooltip}" class="tooltip" data-tooltip="download all">
-        <teilen-button id="${button}">
-          <download-icon slot="icon" size="5"></download-icon>
+      <span id="${idTooltip}" class="tooltip" data-tooltip="download all">
+        <teilen-button id="${idButton}">
+          <teilen-download-icon slot="icon" size="5"></teilen-download-icon>
         </teilen-button>
       </span>
     `;
 
-    this.shadowRoot.getElementById(button).addEventListener("click", () => {
+    this.shadowRoot.getElementById(idButton).addEventListener("click", () => {
       // resolve selection
       let targets = Object.values(ItemsStore).filter((item) => item.selected);
       if (targets.length === 0) targets = Object.values(ItemsStore);
@@ -107,7 +107,7 @@ class SelectionDownload extends Base {
           alert("Failed to prepare archive for download.");
         }
 
-        const modal = document.createElement("teilen-modal-archive-download");
+        const modal = document.createElement("teilen-selection-download-modal");
         modal.archiveId = (await r.json()).id ?? "missing";
         this.shadowRoot.appendChild(modal);
         modal.open();
@@ -128,7 +128,7 @@ class SelectionDownload extends Base {
       label = `download ${count} selected items`;
     }
 
-    this.shadowRoot.getElementById(tooltip).setAttribute("data-tooltip", label);
+    this.shadowRoot.getElementById(idTooltip).setAttribute("data-tooltip", label);
   };
 
   connectedCallback() {

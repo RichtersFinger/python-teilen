@@ -1,12 +1,12 @@
 import BaseIcon from "./icon-base.js";
 
-const attributeSize = "size";
-const attributeStrokeWidth = "stroke-width";
-const attributeMirror = "mirror";
+const attrSize = "size";
+const attrStrokeWidth = "stroke-width";
+const attrMirror = "mirror";
 
 class DownloadIcon extends BaseIcon {
   static css = css`
-    :host([${attributeMirror}]) svg {
+    :host([${attrMirror}]) svg {
       transform: scaleX(-1);
     }
   `;
@@ -14,9 +14,9 @@ class DownloadIcon extends BaseIcon {
   constructor() {
     super();
 
-    const size = this.getAttribute(attributeSize) || 6;
+    const size = this.getAttribute(attrSize) || 6;
     this.style.setProperty("--icon-size", `var(--size-${size})`);
-    const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;
+    const strokeWidth = this.getAttribute(attrStrokeWidth) || 2;
     this.shadowRoot.innerHTML = html`
       <svg
         class="icon-svg"
@@ -34,6 +34,6 @@ class DownloadIcon extends BaseIcon {
   }
 }
 
-customElements.define("download-icon", DownloadIcon);
+customElements.define("teilen-download-icon", DownloadIcon);
 
 export default DownloadIcon;

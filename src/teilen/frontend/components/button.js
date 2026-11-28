@@ -1,6 +1,6 @@
 import Base from "./base.js";
 
-const attributeDisabled = "disabled";
+const attrDisabled = "disabled";
 
 class Button extends Base {
   static css = css`
@@ -32,10 +32,10 @@ class Button extends Base {
     }
   `;
 
-  static observedAttributes = [attributeDisabled];
+  static observedAttributes = [attrDisabled];
 
   attributeChangedCallback(name, _, newValue) {
-    if (name === attributeDisabled) {
+    if (name === attrDisabled) {
       const btn = this.shadowRoot.querySelector(".outer");
       if (btn) {
         if (newValue !== null) {
@@ -50,7 +50,7 @@ class Button extends Base {
   constructor() {
     super();
 
-    const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
+    const isDisabled = this.hasAttribute(attrDisabled) ? "disabled" : "";
     this.shadowRoot.innerHTML = html`
       <button class="outer" ${isDisabled}>
         <slot name="icon"></slot>

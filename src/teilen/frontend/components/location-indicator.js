@@ -5,8 +5,8 @@ import "./icon-home.js";
 
 import { LocationStore } from "../data/location.js";
 
-const home = "home";
-const inner = "inner";
+const idHome = "home";
+const idInner = "inner";
 
 class Location extends Base {
   static css = css`
@@ -41,20 +41,20 @@ class Location extends Base {
 
     this.shadowRoot.innerHTML = html`
       <div class="outer">
-        <home-icon
-          id="${home}"
+        <teilen-home-icon
+          id="${idHome}"
           class="segment"
           size="6"
           stroke-width="2.4"
-        ></home-icon>
-        <div id="${inner}" class="inner">
+        ></teilen-home-icon>
+        <div id="${idInner}" class="inner">
           <div></div>
         </div>
       </div>
     `;
 
     this.shadowRoot
-      .getElementById(home)
+      .getElementById(idHome)
       .addEventListener("click", LocationActions.clearPath);
   }
 
@@ -75,7 +75,7 @@ class Location extends Base {
 
       segments.push(separator, segment);
     }
-    this.shadowRoot.getElementById(inner).replaceChildren(...segments);
+    this.shadowRoot.getElementById(idInner).replaceChildren(...segments);
   };
 
   connectedCallback() {

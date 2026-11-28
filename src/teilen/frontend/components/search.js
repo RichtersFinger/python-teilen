@@ -7,8 +7,8 @@ import { LocationSubscriptions } from "../data/location.js";
 
 const attributeDisabled = "disabled";
 
-const outer = "outer";
-const input = "input";
+const idOuter = "outer";
+const idInput = "input";
 
 class Search extends Base {
   static css = css`
@@ -68,25 +68,25 @@ class Search extends Base {
 
     const isDisabled = this.hasAttribute(attributeDisabled) ? "disabled" : "";
     this.shadowRoot.innerHTML = html`
-      <div id="${outer}" class="outer ${isDisabled ? "disabled" : ""}">
-        <search-icon class="icon"></search-icon>
-        <input id="${input}" type="text" placeholder="Search ..." ${isDisabled} />
+      <div id="${idOuter}" class="outer ${isDisabled ? "disabled" : ""}">
+        <teilen-search-icon class="icon"></teilen-search-icon>
+        <input id="${idInput}" type="text" placeholder="Search ..." ${isDisabled} />
       </div>
     `;
 
-    const outerEl = this.shadowRoot.getElementById(outer);
-    const inputEl = this.shadowRoot.getElementById(input);
+    const outerEl = this.shadowRoot.getElementById(idOuter);
+    const inputEl = this.shadowRoot.getElementById(idInput);
 
     outerEl.addEventListener("click", () => inputEl.focus());
     inputEl.addEventListener("input", () => BodySingleton.body?.renderItems());
   }
 
   get value() {
-    return this.shadowRoot.getElementById(input).value;
+    return this.shadowRoot.getElementById(idInput).value;
   }
 
   onLocationChange = () => {
-    this.shadowRoot.getElementById(input).value = "";
+    this.shadowRoot.getElementById(idInput).value = "";
   };
 
   connectedCallback() {

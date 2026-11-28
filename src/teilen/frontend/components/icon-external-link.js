@@ -1,7 +1,7 @@
 import BaseIcon from "./icon-base.js";
 
-const attributeSize = "size";
-const attributeStrokeWidth = "stroke-width";
+const attrSize = "size";
+const attrStrokeWidth = "stroke-width";
 
 class ExternalLinkIcon extends BaseIcon {
   static css = css``;
@@ -9,9 +9,9 @@ class ExternalLinkIcon extends BaseIcon {
   constructor() {
     super();
 
-    const size = this.getAttribute(attributeSize) || 6;
+    const size = this.getAttribute(attrSize) || 6;
     this.style.setProperty("--icon-size", `var(--size-${size})`);
-    const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;
+    const strokeWidth = this.getAttribute(attrStrokeWidth) || 2;
     this.shadowRoot.innerHTML = html`
       <svg
         class="icon-svg"
@@ -29,6 +29,6 @@ class ExternalLinkIcon extends BaseIcon {
   }
 }
 
-customElements.define("external-link-icon", ExternalLinkIcon);
+customElements.define("teilen-external-link-icon", ExternalLinkIcon);
 
 export default ExternalLinkIcon;

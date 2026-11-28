@@ -1,7 +1,7 @@
 import BaseIcon from "./icon-base.js";
 
-const attributeSize = "size";
-const attributeStrokeWidth = "stroke-width";
+const attrSize = "size";
+const attrStrokeWidth = "stroke-width";
 
 class HomeIcon extends BaseIcon {
   static css = css``;
@@ -9,9 +9,9 @@ class HomeIcon extends BaseIcon {
   constructor() {
     super();
 
-    const size = this.getAttribute(attributeSize) || 6;
+    const size = this.getAttribute(attrSize) || 6;
     this.style.setProperty("--icon-size", `var(--size-${size})`);
-    const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;
+    const strokeWidth = this.getAttribute(attrStrokeWidth) || 2;
     this.shadowRoot.innerHTML = html`
       <svg
         class="icon-svg"
@@ -27,6 +27,6 @@ class HomeIcon extends BaseIcon {
   }
 }
 
-customElements.define("home-icon", HomeIcon);
+customElements.define("teilen-home-icon", HomeIcon);
 
 export default HomeIcon;

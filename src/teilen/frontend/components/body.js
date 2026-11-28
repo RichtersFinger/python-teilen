@@ -11,7 +11,7 @@ import { ItemsActions } from "../data/items.js";
 import { LocationStore, LocationSubscriptions } from "../data/location.js";
 import { BodySingleton, ToolbarSingleton } from "../singletons.js";
 
-const innerBottom = "innerBottom";
+const idInnerBottom = "inner-bottom";
 
 class Body extends Base {
   static css = css`
@@ -59,14 +59,14 @@ class Body extends Base {
           <teilen-location-indicator></teilen-location-indicator>
           <teilen-selection-download></teilen-selection-download>
         </div>
-        <div id="${innerBottom}" class="inner-bottom">
+        <div id="${idInnerBottom}" class="inner-bottom">
           <teilen-spinner></teilen-spinner>
         </div>
       </div>
     `;
 
     this.shadowRoot
-      .getElementById(innerBottom)
+      .getElementById(idInnerBottom)
       .addEventListener("click", (e) => {
         if (!e.ctrlKey) ItemsActions.clearSelection();
       });
@@ -94,7 +94,7 @@ class Body extends Base {
   }
 
   renderItems() {
-    const innerElement = this.shadowRoot.getElementById(innerBottom);
+    const innerElement = this.shadowRoot.getElementById(idInnerBottom);
 
     let getItemOrderProperty;
     if (ToolbarSingleton.order.value.startsWith("size")) {

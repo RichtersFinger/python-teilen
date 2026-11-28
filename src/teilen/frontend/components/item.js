@@ -14,12 +14,12 @@ export const Kind = {
   },
 };
 
-export const attributeId = "item-id";
-export const attributeKind = "kind";
+const attrId = "item-id";
+const attrKind = "kind";
 
-const root = "root";
-const img = "img";
-const label = "label";
+const idRoot = "root";
+const idImg = "img";
+const idLabel = "label";
 
 class Item extends Base {
   static css = css`
@@ -49,38 +49,38 @@ class Item extends Base {
   `;
 
   get id() {
-    return this.getAttribute(attributeId);
+    return this.getAttribute(attrId);
   }
 
   set id(value) {
-    if (this.getAttribute(attributeId) !== null) {
+    if (this.getAttribute(attrId) !== null) {
       console.error("Cannot change item-id");
       return;
     }
-    this.setAttribute(attributeId, value);
+    this.setAttribute(attrId, value);
   }
 
   get kind() {
-    return this.getAttribute(attributeKind);
+    return this.getAttribute(attrKind);
   }
 
   set kind(value) {
-    if (this.getAttribute(attributeKind) !== null) {
+    if (this.getAttribute(attrKind) !== null) {
       console.error("Cannot change item-kind");
       return;
     }
-    this.setAttribute(attributeKind, value);
+    this.setAttribute(attrKind, value);
 
     if (value === Kind.directory.id) {
       this.shadowRoot
-        .getElementById(root)
+        .getElementById(idRoot)
         .addEventListener("dblclick", () =>
           LocationActions.navigateRelative(this.id),
         );
     }
     if (value === Kind.file.id) {
       this.shadowRoot
-        .getElementById(root)
+        .getElementById(idRoot)
         .addEventListener("dblclick", () =>
           window.open(
             `/files/${[...LocationStore.location, this.id].join("/")}`,
@@ -91,25 +91,25 @@ class Item extends Base {
   }
 
   get selected() {
-    return this.shadowRoot.getElementById(root).classList.contains("selected");
+    return this.shadowRoot.getElementById(idRoot).classList.contains("selected");
   }
 
   select() {
-    this.shadowRoot.getElementById(root).classList.add("selected");
+    this.shadowRoot.getElementById(idRoot).classList.add("selected");
   }
 
   unselect() {
-    this.shadowRoot.getElementById(root).classList.remove("selected");
+    this.shadowRoot.getElementById(idRoot).classList.remove("selected");
   }
 
-  static observedAttributes = [attributeId, attributeKind];
+  static observedAttributes = [attrId, attrKind];
 
   attributeChangedCallback(name, _, newValue) {
-    if (name === attributeId) {
-      this.shadowRoot.getElementById(label).innerText = newValue;
+    if (name === attrId) {
+      this.shadowRoot.getElementById(idLabel).innerText = newValue;
     }
-    if (name === attributeKind) {
-      this.shadowRoot.getElementById(img).src =
+    if (name === attrKind) {
+      this.shadowRoot.getElementById(idImg).src =
         Kind[newValue]?.img ?? "/static/img/placeholder.svg";
     }
   }
@@ -117,28 +117,28 @@ class Item extends Base {
   constructor() {
     super();
 
-    let id = this.getAttribute(attributeId);
-    let kind = this.getAttribute(attributeKind);
+    let id = this.getAttribute(attrId);
+    let kind = this.getAttribute(attrKind);
     this.shadowRoot.innerHTML = html`
-      <div id="${root}" class="outer">
+      <div id="${idRoot}" class="outer">
         <img
-          id="${img}"
+          id="${idImg}"
           src="${Kind[kind]?.img ?? "/static/img/placeholder.svg"}"
         />
-        <span id="${label}" class="name">${id}</span>
+        <span id="${idLabel}" class="name">${id}</span>
       </div>
     `;
 
-    this.shadowRoot.getElementById(root).addEventListener("click", (e) => {
+    this.shadowRoot.getElementById(idRoot).addEventListener("click", (e) => {
       e.stopPropagation();
-      const itemId = this.getAttribute(attributeId);
+      const itemId = this.getAttribute(attrId);
       if (!e.ctrlKey) ItemsActions.clearSelection();
       ItemsActions.selectItem(itemId);
     });
   }
 
   connectedCallback() {
-    let itemId = this.getAttribute(attributeId);
+    let itemId = this.getAttribute(attrId);
     if (!itemId) {
       console.error("Missing item ID during connect.");
       return;
@@ -148,7 +148,7 @@ class Item extends Base {
   }
 
   disconnectedCallback() {
-    let itemId = this.getAttribute(attributeId);
+    let itemId = this.getAttribute(attrId);
     if (!itemId) {
       console.error("Missing item ID during disconnect.");
       return;

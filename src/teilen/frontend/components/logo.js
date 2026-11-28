@@ -1,6 +1,6 @@
 import Base from "./base.js";
 
-const attributeHeight = "height";
+const attrHeight = "height";
 
 class Logo extends Base {
   static css = css`
@@ -23,7 +23,7 @@ class Logo extends Base {
     this.shadowRoot.innerHTML = html`
       <img
         src="/static/img/favicon2.svg"
-        height="${this.getAttribute(attributeHeight) ?? "95%"}"
+        height="${this.getAttribute(attrHeight) ?? "95%"}"
       />
       <span class="logo-text">teilen</span>
     `;
