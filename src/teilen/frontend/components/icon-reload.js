@@ -18,9 +18,16 @@ class ReloadIcon extends BaseIcon {
     this.style.setProperty("--icon-size", `var(--size-${size})`);
     const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;
     this.shadowRoot.innerHTML = html`
-      <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true" stroke-width="${strokeWidth}">
-        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
-        <path d="M21 3v5h-5"></path>
+      <svg
+        class="icon-svg"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        stroke-width="${strokeWidth}"
+      >
+        <path d="M 22,2.73 21.66,7.72 16.67,7.37"></path>
+        <path
+          d="M 22.2175,12 C 22.2175,17.65 17.65,22.2175 12,22.2175 6.36,22.2175 1.78,17.65 1.78,12 1.78,6.36 6.36,1.78 12,1.78 c 3.83,0 7.17,2.11 8.92,5.23"
+        ></path>
       </svg>
     `;
   }

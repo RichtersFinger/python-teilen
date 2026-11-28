@@ -13,9 +13,14 @@ class SearchIcon extends BaseIcon {
     this.style.setProperty("--icon-size", `var(--size-${size})`);
     const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;
     this.shadowRoot.innerHTML = html`
-      <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true" stroke-width="${strokeWidth}">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      <svg
+        class="icon-svg"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        stroke-width="${strokeWidth}"
+      >
+        <circle cx="9.95" cy="10.75" r="7.25" />
+        <path d="m 15.25,16 5.45,5.45" />
       </svg>
     `;
   }

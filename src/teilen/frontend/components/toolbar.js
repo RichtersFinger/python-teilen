@@ -3,7 +3,6 @@ import Base from "./base.js";
 import "./search.js";
 import "./select-sort-by.js";
 import "./button.js";
-import "./icon-chevron.js";
 import "./icon-reload.js";
 
 import { BodySingleton, ToolbarSingleton } from "../singletons.js";

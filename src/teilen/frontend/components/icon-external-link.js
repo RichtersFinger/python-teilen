@@ -20,10 +20,10 @@ class ExternalLinkIcon extends BaseIcon {
         stroke-width="${strokeWidth}"
       >
         <path
-          d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+          d="m 20,12.95 v 6.8 c 0,2.25 0,2.25 -2.25,2.25 H 5.25 C 3,21 3,21 3,18.75 V 6.25 C 3,4 3,4 5.25,4 h 6.8"
         ></path>
         <polyline points="15 3 21 3 21 9"></polyline>
-        <line x1="10" y1="14" x2="21" y2="3"></line>
+        <line x1="11" y1="13" x2="20.3" y2="3.7"></line>
       </svg>
     `;
   }

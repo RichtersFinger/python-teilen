@@ -18,10 +18,17 @@ class DownloadIcon extends BaseIcon {
     this.style.setProperty("--icon-size", `var(--size-${size})`);
     const strokeWidth = this.getAttribute(attributeStrokeWidth) || 2;
     this.shadowRoot.innerHTML = html`
-      <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true" stroke-width="${strokeWidth}">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
+      <svg
+        class="icon-svg"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        stroke-width="${strokeWidth}"
+      >
+        <path
+          d="m 22.95,14.1 v 3.25 C 21.95,19 22,19 19.75,19 H 4.25 C 2,19 2,19 2,17.35 V 14.1"
+        />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
       </svg>
     `;
   }
