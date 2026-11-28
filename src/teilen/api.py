@@ -55,7 +55,6 @@ class AuthHandler(Handler):
 
     def post(self, request: Request):
         """Perform login, reading password from json."""
-        request.json()
         if self.config.password is None:
             return Response.text("OK")
 
