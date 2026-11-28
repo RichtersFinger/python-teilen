@@ -1,5 +1,3 @@
-import { Kind } from "./components/item.js";
-
 /**
  * Returns size in human readable unit.
  * @param {number} size size in B
@@ -22,10 +20,11 @@ export function toHumanReadableSize(size) {
  */
 export function formatTooltip(item) {
   // API reports datetime in seconds since epoch -> transform to milliseconds
-  let result = `${item.kind[0].toUpperCase() + item.kind.slice(1)}
+  let result = `${item.name}
+${item.kind[0].toUpperCase() + item.kind.slice(1)}
 Changed at: ${new Date(item.mtime * 1000).toLocaleString()}`;
 
-  if (item.size) {
+  if (item.size !== undefined) {
     result += `
 Size: ${toHumanReadableSize(item.size)}`;
   }
